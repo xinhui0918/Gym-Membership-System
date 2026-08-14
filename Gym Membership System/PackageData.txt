@@ -1,0 +1,20 @@
+1001
+Basic Package
+29.99
+30
+0
+1002
+Standard Package
+49.99
+60
+0
+1003
+Premium Package
+69.99
+90
+0
+1004
+Student Package
+19.99
+30
+0
