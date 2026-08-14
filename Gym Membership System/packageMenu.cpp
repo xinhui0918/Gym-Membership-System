@@ -94,10 +94,10 @@ void loadPackageFromFile() {
     inData.open ("PackageData.txt");
 
     if (!inData) {
-        packages[0] = {"1001", "Basic Package", 29.99, 30, Active};
-        packages[1] = {"1002", "Standard Package", 49.99, 60, Active};
-        packages[2] = {"1003", "Premium Package", 69.99, 90, Active};
-        packages[3] = {"1004", "Student Package", 19.99, 30, Active};
+        packages[0] = {"1001", "BasicPackage", 29.99, 30, Active};
+        packages[1] = {"1002", "StandardPackage", 49.99, 60, Active};
+        packages[2] = {"1003", "PremiumPackage", 69.99, 90, Active};
+        packages[3] = {"1004", "StudentPackage", 19.99, 30, Active};
         packageCount = 4;
 
         savePackageToFile();
