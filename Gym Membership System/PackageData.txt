@@ -1,20 +1,20 @@
 1001
-Basic Package
+BasicPackage
 29.99
 30
 0
 1002
-Standard Package
+StandardPackage
 49.99
 60
 0
 1003
-Premium Package
+PremiumPackage
 69.99
 90
 0
 1004
-Student Package
+StudentPackage
 19.99
 30
 0
