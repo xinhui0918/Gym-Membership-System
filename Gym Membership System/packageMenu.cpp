@@ -240,7 +240,7 @@ void updatePackage() {
         if (packages[i].packageID == id) {
             cout << "\nFound Package [" << packages[i].packageName << "]" << endl;
 
-// Validation price cant be negative
+    // Validation price cant be negative
     do {
         cout << "Enter package price (RM) : ";
         if (!(cin >> packages[i].price) || packages[i].price < 0) {
@@ -253,7 +253,7 @@ void updatePackage() {
     }
     while (true);
 
-// Validation Duration Day
+    // Validation Duration Day
     do {
         cout << "Enter package duration (Days) : ";
         if (!(cin >> packages[i].durationDays) || packages[i].durationDays <= 0) {
