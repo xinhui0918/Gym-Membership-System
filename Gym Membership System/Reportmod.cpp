@@ -23,14 +23,14 @@ enum package_status {
 //Structure declaration
 //UserData module
 struct UserData {
-    int userID;
+    string userID;
 	string userName;
 	string phoneNum;
-	int packageID;
+	string packageID;
 };
 //PackageData module
 struct GymPackage {
-	int packageID;
+	string packageID;
     string packageName;
     double price;
     int durationDays;
@@ -80,8 +80,7 @@ void ReportMenu() {
 			ReportCalculation();
 			break;
 		case 5:
-			cout << "Exiting to admin menu." << endl;
-			// Back to admin menu 
+ 			exit(0);
 			break;
 		default:
 			system("cls");
