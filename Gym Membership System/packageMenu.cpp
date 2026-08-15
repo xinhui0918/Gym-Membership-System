@@ -240,11 +240,31 @@ void updatePackage() {
         if (packages[i].packageID == id) {
             cout << "\nFound Package [" << packages[i].packageName << "]" << endl;
 
-            cout << "Enter New Price (RM) : ";
-            cin >> packages[i].price;
+// Validation price cant be negative
+    do {
+        cout << "Enter package price (RM) : ";
+        if (!(cin >> packages[i].price) || packages[i].price < 0) {
+            cout << "[ERROR] Invalid price ! Must be a non-negative number." << endl;
+            clearInputBuffer();
+        }
+        else {
+            break;
+        }
+    }
+    while (true);
 
-            cout << "Enter New Duration in Days : ";
-            cin >> packages[i].durationDays;
+// Validation Duration Day
+    do {
+        cout << "Enter package duration (Days) : ";
+        if (!(cin >> packages[i].durationDays) || packages[i].durationDays <= 0) {
+            cout << "[ERROR] Invalid duration ! Must be a greater than 0." << endl;
+            clearInputBuffer();
+        }
+        else {
+            break;
+        }
+    }
+    while (true);
 
             int statusInput;
             cout << "Set Status (0: Active, 1: Inactive) : ";
@@ -280,7 +300,7 @@ void deletePackage() {
             return;
         }
     }
-    cout << "[ERROR] Package ID" << id << "Not Found. " << endl;
+    cout << "[ERROR] Package ID " << id << " Not Found. " << endl;
 }
 
 // Search Package
@@ -324,7 +344,7 @@ void displayAllPackages() {
         for (int i = 0; i < packageCount; i++) {
             cout << left << setw(8) << packages[i].packageID
                 << setw(22) << packages[i].packageName
-                << setw(14) << packages[i].price
+                << setw(14) << fixed << setprecision(2) << packages[i].price
                 << setw(18) << packages[i].durationDays
                 << setw(10) << statusToString(packages[i].packageStatus) << endl;
         }
