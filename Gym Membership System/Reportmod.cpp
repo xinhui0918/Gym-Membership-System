@@ -58,6 +58,7 @@ void displayHeader(string title) {
 	for (int i = 0; i < 120; i++) {
 		cout << '=';
 	}
+	cout << endl;
 }
 void ReportMenu() {
 	int choice;
@@ -175,6 +176,7 @@ void ReportUser() {
 }
 void ReportSorting(UserData users[], GymPackage packages[], int userCount, int packageCount) {
 	int sortingChoice;
+	string repeatornot;
 	do {
 		displayHeader("USER REPORT SORTING OPTIONS");
 		cout << "1. Sort by User ID" << endl;
@@ -293,7 +295,14 @@ void ReportSorting(UserData users[], GymPackage packages[], int userCount, int p
 			cout << '\a' << "||Invalid choice. Please select between 1 and 2.||" << endl;
 		}
 	} while (sortingChoice != 1 && sortingChoice != 2);
-	system("pause");
+
+	displayHeader("Enter 1 to Return Sorting Menu or Any Other Input to Return Report Menu : ");
+	cout << "Enter your choices: ";
+	cin >> repeatornot;
+	if (repeatornot == "1") {
+		system("cls");
+		ReportSorting(users, packages, UserCount, PackageCount);
+	}
 	system("cls");
 }
 void ReportRevenue() {
