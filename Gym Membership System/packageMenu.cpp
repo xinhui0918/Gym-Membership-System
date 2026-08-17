@@ -271,12 +271,10 @@ void updatePackage() {
             savePackageToFile();
 
             cout << "[SUCCESS] Package Updated Successfully ! " << endl;
-            clearInputBuffer();
             return;
         }
     }
     cout << "[ERROR] Package ID" << id << "Not Found." << endl;
-    clearInputBuffer();
 }
 
 // Delete Package
@@ -323,7 +321,6 @@ void searchPackage() {
         }
     }
     cout << "[ERROR] Package ID " << id << " Not Found" << endl;
-    clearInputBuffer();
 }
 
 // Display All Package
