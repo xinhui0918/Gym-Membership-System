@@ -223,6 +223,7 @@ void addPackage() {
         cout << "[CANCEL] Operation cancelled. Package was NOT saved." << endl;
     }
     
+    clearInputBuffer();
 }
 
 // Update package
@@ -270,10 +271,12 @@ void updatePackage() {
             savePackageToFile();
 
             cout << "[SUCCESS] Package Updated Successfully ! " << endl;
+            clearInputBuffer();
             return;
         }
     }
     cout << "[ERROR] Package ID" << id << "Not Found." << endl;
+    clearInputBuffer();
 }
 
 // Delete Package
@@ -315,10 +318,12 @@ void searchPackage() {
             cout << "Price (RM) : " << packages[i].price << endl;
             cout << "Duration (Days) : " << packages[i].durationDays << endl;
             cout << "Status : " << statusToString(packages[i].packageStatus) << endl;
+            clearInputBuffer();
             return;
         }
     }
     cout << "[ERROR] Package ID " << id << " Not Found" << endl;
+    clearInputBuffer();
 }
 
 // Display All Package
