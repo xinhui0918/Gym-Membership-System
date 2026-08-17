@@ -1,0 +1,2 @@
+﻿booking.obj : error LNK2019: unresolved external symbol "void __cdecl searchBooking(void)" (?searchBooking@@YAXXZ) referenced in function "void __cdecl booking(void)" (?booking@@YAXXZ)
+C:\Users\Lam\OneDrive\Desktop\1013\assignment\x64\Debug\assignment.exe : fatal error LNK1120: 1 unresolved externals
