@@ -85,9 +85,9 @@ int getMenuChoice (int low, int high) {
 }
 
 // Static data structures
-const int maxPackages = 50;
-GymPackage packages [maxPackages];
-int packageCount = 0;
+const int maxPackages = 50; // Maximum array capacity
+GymPackage packages [maxPackages]; // Array storing all gym packages
+int packageCount = 0; // Count for total active packages
 
 void loadPackageFromFile() {
     ifstream inData("PackageData.txt");
@@ -316,7 +316,6 @@ void searchPackage() {
             cout << "Price (RM) : " << packages[i].price << endl;
             cout << "Duration (Days) : " << packages[i].durationDays << endl;
             cout << "Status : " << statusToString(packages[i].packageStatus) << endl;
-            clearInputBuffer();
             return;
         }
     }
