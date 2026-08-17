@@ -376,7 +376,7 @@ void package() {
                 displayAllPackages();
                 break;
             case 6 :
-                cout << "\nExiting the menu. ThankYou !\n";
+                cout << "\nExiting the menu. Thank You !\n";
                 return;
                 break;
             default :
