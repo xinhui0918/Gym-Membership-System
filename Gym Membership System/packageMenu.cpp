@@ -90,8 +90,7 @@ GymPackage packages [maxPackages];
 int packageCount = 0;
 
 void loadPackageFromFile() {
-    ifstream inData;
-    inData.open ("PackageData.txt");
+    ifstream inData("PackageData.txt");
 
     if (!inData) {
         packages[0] = {"1001", "BasicPackage", 29.99, 30, Active};
@@ -107,9 +106,8 @@ void loadPackageFromFile() {
     packageCount = 0;
     int statusInt;
 
-    inData >> packages[packageCount].packageID;
-    while (!inData.eof() && packageCount < maxPackages) {
-        inData.ignore();
+    while (packageCount < maxPackages && inData >> packages[packageCount].packageID){
+        inData.ignore(10000, '\n');
         getline(inData, packages[packageCount].packageName);
         inData >> packages[packageCount].price;
         inData >> packages[packageCount].durationDays;
@@ -117,8 +115,6 @@ void loadPackageFromFile() {
 
         packages[packageCount].packageStatus = (statusInt == 0) ? Active : Inactive;
         packageCount++;
-
-        inData >> packages[packageCount].packageID;
     }
 
     inData.close();
