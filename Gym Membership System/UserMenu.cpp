@@ -83,7 +83,7 @@ void SaveUserToFile() {
 		cout << "[Error] Unable to open User data file" << endl;
 		return;
 	}
-	for (int i = 0; i < max_user; i++) {
+	for (int i = 0; i < user_count; i++) {
 		outData << users[i].userID << endl;
 		outData << users[i].userName << endl;
 		outData << users[i].phoneNum << endl;
@@ -97,7 +97,7 @@ void SaveUserToFile() {
 void displayHeader(string title)
 {
 	cout << "\n==========================================\n";
-	cout << "|               " << title << "               |";
+	cout << "                " << title << "               ";
 	cout << "\n==========================================\n";
 }
 
@@ -170,6 +170,7 @@ bool IsValidPackageID(string userPackage) {
 
 	if (!PackageFile.is_open()) {
 		cout << "[ERROR] Unable to open PackageData File";
+		return false;
 	}
 
 	while (packageCount < maxPackages && PackageFile >> packages[packageCount].packageID) {
@@ -330,8 +331,13 @@ void addUser() {
 	while(true) {
 		cin >> newUser.phoneNum;
 
+
 		if (newUser.phoneNum[0] != '0') {
 			cout << "[ERROR] First Number start with (0)" << endl;
+			cout << "Please try Again: ";
+		}
+		else if (!isNumPhone(newUser.phoneNum)) {
+			cout << "[ERROR] UserID must contain numbers only!" << endl;
 			cout << "Please try Again: ";
 		}
 		else if (newUser.phoneNum.length() > 11 || newUser.phoneNum.length() < 10) {
@@ -380,23 +386,27 @@ void addUser() {
 void updateUser() {
 	displayHeader("Update User");
 	string userid;
+	string username;
 	string packageid;
 	string phonenum;
 	
 	cout << "Enter your ID: ";
 	cin >> userid;
+
+	bool found = false;
 	for (int i = 0; i < user_count; i++) {
 		if (users[i].userID == userid) {
+			found = true;
 			cout << "\n Found The UserID! \n";
 
 			cout << "Enter New Username: ";
 			while (true) {
-				cin >> users[i].userName;
-				if (!isWordName(users[i].userName)) {
+				cin >> username;
+				if (!isWordName(username)) {
 					cout << "[ERROR] UserNeme must type (alphabet) " << endl;
 					cout << "Please try Again: ";
 				}
-				else if (users[i].userName.length() > 4 || users[i].userName.empty()) {
+				else if (username.length() > 4 || username.empty()) {
 					cout << "[ERROR] Username must below 5 charaters" << endl;
 					cout << "Please try Again: ";
 				}
@@ -408,20 +418,28 @@ void updateUser() {
 			cout << "Enter New Phone Number:";
 			while (true) {
 				cin >> phonenum;
-				if (IsValidPhoneNum(phonenum)) {
-					cout << "Phone Number have been exist" << endl;
-					cout << "Please Enter New Phone Number : ";
+
+				if (phonenum[0] != '0' || !isNumPhone(phonenum) || phonenum.length() > 11 || phonenum.length() < 10) {
+					cout << "[ERROR] Not a phone number format" << endl;
+					cout << "Please try Again: ";
+				}
+				else if ( phonenum != users[i].phoneNum && IsValidPhoneNum(phonenum)) {
+					cout << "[ERROR] Phone Number have been exist!" << endl;
+					cout << "Please try Again: ";
 				}
 				else {
-					users[i].phoneNum = phonenum;
 					break;
 				}
 			}
 
 			cout << "Enter current packageID: ";
 			cin >> packageid;
-			if (users[i].userPackage == packageid) {
+			if (IsValidPackageID(packageid)) {
+				users[i].userName = username;
+				users[i].phoneNum = phonenum;
+				users[i].userPackage = packageid;
 				SaveUserToFile();
+
 				cout << "\n========================================\n";
 				cout << "|        USER UPDATE SUCCESSFULLY!      |\n";
 				cout << "========================================\n";
@@ -436,10 +454,9 @@ void updateUser() {
 			}
 			return;
 		}
-		else {
-			cout << "User ID not found!" << endl;
-			break;
-		}
+	}
+	if (!found) {
+		cout << "User ID not found!" << endl;
 	}
 }
 
@@ -459,22 +476,23 @@ void deleteUser() {
 		return;
 	}
 
+	bool found = false;
 	for (int i = 0; i < user_count; i++) {
 		if (users[i].userID == userid) {
-
 			for (int j = i; j < user_count - 1; j++) {
 				users[j] = users[j + 1];
 			}
-		user_count--;
-		SaveUserToFile();
-		
-		cout << "DELETE SUCCESSFULLY!" << endl;
-		return;
-		}
-		else {
-			cout << "User ID not found!" << endl;
+			user_count--;
+			SaveUserToFile();
+
+			cout << "Delate [SUCCESS]!" << endl;
+			found = true;
 			break;
 		}
+	}
+	
+	if (!found) {
+		cout << "User ID not found!" << endl;
 	}
 	
 
@@ -486,6 +504,9 @@ void searchUser() {
 	string userid;
 	cout << "Enter UserID: ";
 	cin >> userid;
+
+	//loop for found UserID
+	bool found = false;
 	for (int i = 0; i < user_count; i++) {
 		if (users[i].userID == userid) {
 			cout << "[SUCCESS] Found UserID!" << endl;
@@ -493,12 +514,12 @@ void searchUser() {
 			cout << "Username: " << users[i].userName << endl;
 			cout << "Phone Number: " << users[i].phoneNum << endl;
 			cout << "Package ID: " << users[i].userPackage << endl;
-			return;
-		}
-		else {
-			cout << "User ID not found!" << endl;
+			found = true;
 			break;
 		}
+	}
+	if (!found) {
+		cout << "User ID not found!" << endl;
 	}
 }
 
