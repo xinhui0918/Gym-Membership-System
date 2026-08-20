@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <string>
 #include <limits>
+#include <fstream>
 using namespace std;
 
 enum package_status {
@@ -34,17 +35,17 @@ struct PaymentTransaction {
     string status;
 };
 //array maximum transaction
-const int MAX_TRANSACTIONS = 100;
+const int MAX_TRANSACTIONS = 50;
 
 PaymentTransaction transactions[MAX_TRANSACTIONS];
 int transactionCount = 0;
 int nextTransactionID = 1001;
 
 // These variables should be defined only once in another file
-extern GymPackage packages[];
+extern GymPackage packages[50];
 extern int packageCount;
 
-extern GymUser users[];
+extern GymUser users[50];
 extern int user_count;
 
 //function protoypes
@@ -347,6 +348,108 @@ void refundProcess() {
         cout << "[ERROR] This transaction has already been refunded.\n";
         return;
     }
+    // Display the payment information before refunding
+    cout << fixed << setprecision(2);
+    cout << "\nPayment information:\n";
+    cout << "Transaction ID : " << payment.transactionID << endl;
+    cout << "Customer       : " << payment.customerName << endl;
+    cout << "Package        : " << payment.packageName << endl;
+    cout << "Amount         : RM " << payment.amount << endl;
+    cout << "Payment Method : " << payment.paymentMethod << endl;
+    cout << "Status         : " << payment.status << endl;
+
+    char confirmation;
+
+    while (true) {
+        cout << "\nConfirm refund? (Y/N): ";
+        cin >> confirmation;
+
+        if (confirmation == 'Y' || confirmation == 'y') {
+            break;
+        }
+        else if (confirmation == 'N' || confirmation == 'n') {
+            cout << "[CANCELLED] Refund was not processed.\n";
+            return;
+        }
+        else {
+            cout << "[ERROR] Please enter Y or N.\n";
+        }
+    }
+
+    // Update the original payment record
+    payment.status = "Refunded";
+
+    cout << "\n========== REFUND SUCCESSFUL ==========\n";
+    cout << "Transaction ID : " << payment.transactionID << endl;
+    cout << "Customer       : " << payment.customerName << endl;
+    cout << "Package        : " << payment.packageName << endl;
+    cout << "Refund Amount  : RM " << payment.amount << endl;
+    cout << "Status         : " << payment.status << endl;
+}
+
+void searchTransaction() {
+    int transactionID;
+
+    cout << "\n========== SEARCH TRANSACTION ==========\n";
+
+    if (transactionCount == 0) {
+        cout << "[ERROR] No payment transactions found.\n";
+        return;
+    }
+
+    cout << "Enter Transaction ID: ";
+    cin >> transactionID;
+
+    if (cin.fail()) {
+        cout << "[ERROR] Invalid input. Please enter a number.\n";
+        clearInputBuffer();
+        return;
+    }
+
+    int transactionIndex = findTransactionIndex(transactionID);
+
+    if (transactionIndex == -1) {
+        cout << "[ERROR] Transaction not found.\n";
+        return;
+    }
+
+    PaymentTransaction payment = transactions[transactionIndex];
+
+    cout << fixed << setprecision(2);
+    cout << "\n========== TRANSACTION FOUND ==========\n";
+    cout << "Transaction ID : " << payment.transactionID << endl;
+    cout << "User ID        : " << payment.userID << endl;
+    cout << "Customer       : " << payment.customerName << endl;
+    cout << "Package        : " << payment.packageName << endl;
+    cout << "Amount         : RM " << payment.amount << endl;
+    cout << "Payment Method : " << payment.paymentMethod << endl;
+    cout << "Status         : " << payment.status << endl;
+}
+
+void displayPaymentHistory() {
+    cout << "\n========== PAYMENT HISTORY ==========\n";
+
+    if (transactionCount == 0) {
+        cout << "[ERROR] No payment transactions found.\n";
+        return;
+    }
+
+    cout << fixed << setprecision(2);
+
+    for (int i = 0; i < transactionCount; i++) {
+        cout << "\n-------------------------------------\n";
+        cout << "Transaction ID : " << transactions[i].transactionID << endl;
+        cout << "User ID        : " << transactions[i].userID << endl;
+        cout << "Customer       : " << transactions[i].customerName << endl;
+        cout << "Package        : " << transactions[i].packageName << endl;
+        cout << "Amount         : RM " << transactions[i].amount << endl;
+        cout << "Payment Method : " << transactions[i].paymentMethod << endl;
+        cout << "Status         : " << transactions[i].status << endl;
+    }
+
+    cout << "\n-------------------------------------\n";
+    cout << "Total transactions: " << transactionCount << endl;
+}
 
 void payment() {
 	int paymentChoice = 0;
@@ -381,4 +484,9 @@ void payment() {
 			cout << "\nInvalid choice. Please enter 1 - 6.\n";
 		}
 	} while (paymentChoice != 6);
+}
+
+int main(){
+	payment();
+    return 0;
 }
