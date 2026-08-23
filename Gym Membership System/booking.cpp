@@ -121,7 +121,7 @@ int getMenuChoice(int low, int high) {
 	return choice;
 }
 
-void saveBooking() {
+void saveBookingFromFile() {
 	ofstream outFile;
 	outFile.open("bookings.txt");
 
@@ -138,7 +138,7 @@ void saveBooking() {
 	outFile.close();
 }
 
-void loadBookings() {
+void loadBookingFromFile() {
 	ifstream inFile("bookings.txt");
 	
 	// no file, skipp
@@ -203,10 +203,6 @@ void createBooking() {
 	cin >> userName;
 	clearInputBuffer();
 
-
-	// Task: put user name input
-	// Task: change userid to bookingid and auto increment it
-
 	cout << "Please select the time slot:\n";
 	cout << "\n The avaible time slot : \n";
 	for (int i = 0; i < maxSlot; i++) {
@@ -237,7 +233,7 @@ void createBooking() {
 	new_booking_id++;
 	bookingCount++;
 		
-	saveBooking();
+	saveBookingFromFile();
 
 		
 }
@@ -294,7 +290,7 @@ void cancelBooking() {
 	else {
 		cout << "Cancellation aborted." << endl;
 	}
-	saveBooking();
+	saveBookingFromFile();
 }
 
 // modify booking
@@ -356,7 +352,8 @@ void modifyBooking() {
 	bookings[index].date = timeSlots[newSlot - 1].startTime + "-" + timeSlots[newSlot - 1].endTime;
 
 cout << "Booking modified successfully. New time slot: " << bookings[index].date << endl;
-saveBooking();
+
+saveBookingFromFile();
 
 }
 
@@ -448,7 +445,7 @@ void booking() {
 
 
 int main() {
-	loadBookings();
+	loadBookingFromFile();
 	booking();
 	return 0;
 }
