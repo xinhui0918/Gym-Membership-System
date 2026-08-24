@@ -6,7 +6,7 @@
 
 using namespace std;
 // Forward declarations of structs so prototypes can use them
-struct UserData;
+struct GymUser;
 struct GymPackage;
 //Function declaration
 // GENERAL FUNCTION
@@ -15,7 +15,15 @@ void displayHeader(string title);
 void clearInputBuffer();
 void MainMenu();
 // USER MODULE
-
+void promptUserMenu();
+void userMenu();
+void addUser();
+void updateUser();
+void deleteUser();
+void searchUser();
+void displayUser();
+void loadUserFromFile();
+void saveUserToFile();
 
 // PACKAGE MODULE
 void packageMenu();
@@ -39,10 +47,10 @@ void loadBookingFromFile();
 // REPORT MODULE 
 void ReportMenu();
 void ReportUser();
-void ReportSorting(UserData users[], GymPackage packages[], int userCount, int packageCount);
+void ReportSorting(GymUser users[], GymPackage packages[], int userCount, int packageCount);
 void ReportRevenue();
 void ReportStatistics();
-void ReportPrintuser(UserData users[], GymPackage packages[], int userCount, int packageCount);
+void ReportPrintuser(GymUser users[], GymPackage packages[], int userCount, int packageCount);
 // PAYMENT MODULE
 //Enum
 enum package_status {
@@ -59,12 +67,12 @@ string  status_to_string(booking_status status) {
 string status_to_string(booking_status status);
 string statusToString(package_status status);
 //Structure declaration
-//UserData module	
-struct UserData {
+//GymUser module	
+struct GymUser {
 	string userID;
 	string userName;
 	string phoneNum;
-	string packageID;
+	string userPackage;
 };
 //PackageData module
 struct GymPackage {
@@ -95,7 +103,7 @@ struct timeSlot {
 const int maxUsers = 50;
 const int maxPackages = 50;
 const int maxBooking = 50;
-UserData users[maxUsers];
+GymUser users[maxUsers];
 GymPackage packages[maxPackages];
 Gymbooking bookings[maxBooking];
 int userCount = 0;
@@ -121,6 +129,8 @@ timeSlot timeSlots[maxSlot] = {
 //Global variable 
 
 int main() {
+	loadUserFromFile();
+	loadPackageFromFile();
 	loadBookingFromFile();
 	MainMenu();
 }
@@ -176,7 +186,7 @@ void MainMenu() {
 		}
 		switch (choice) {
 		case 1:
-			//TBA
+			userMenu();
 			break;
 		case 2:
 			package();
@@ -200,8 +210,433 @@ void MainMenu() {
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // USER MODULE
+bool isDuplicateID(string id);
+void loadUserFromFile() {
+	ifstream inData("UserData.txt");
+
+	if (!inData) {
+		users[0] = { "0001", "Tan", "0193257193", "1001" },
+			users[1] = { "0002", "Loh", "0138642947", "1001" },
+			users[2] = { "0003", "Ooi", "0163841946", "1004" },
+
+			userCount = 3;
+		saveUserToFile();
+		return;
+	}
+
+	userCount = 0;
+	while (userCount < maxUsers && inData >> users[userCount].userID) {
+		inData >> users[userCount].userName;
+		inData >> users[userCount].phoneNum;
+		inData >> users[userCount].userPackage;
+
+		userCount++;
+	}
+
+	inData.close();
+};
+
+void saveUserToFile() {
+	ofstream outData("UserData.txt");
+
+	if (!outData) {
+		cout << "[Error] Unable to open User data file" << endl;
+		return;
+	}
+	for (int i = 0; i < userCount; i++) {
+		outData << users[i].userID << endl;
+		outData << users[i].userName << endl;
+		outData << users[i].phoneNum << endl;
+		outData << users[i].userPackage << endl;
+	}
+
+	outData.close();
+}
+
+void promptUserMenu() {
+	cout << "| 1. Add User                            |" << endl;
+	cout << "| 2. Update User                         |" << endl;
+	cout << "| 3. Delete User                         |" << endl;
+	cout << "| 4. Search Users                        |" << endl;
+	cout << "| 5. Display Users                       |" << endl;
+	cout << "| 6. Exit                                |" << endl;
+}
+
+//user valid ID exist
+bool IsValidUserID(string userID) {
+	for (int i = 0; i < userCount; i++) {
+		if (users[i].userID == userID) {
+			return true;
+		};
+	}
+	return false;
+};
+
+//user valid PhoneNumber exist
+bool IsValidPhoneNum(string phoneNum) {
+	for (int i = 0; i < userCount; i++) {
+		if (users[i].phoneNum == phoneNum) {
+			return true;
+		};
+	}
+	return false;
+}
+
+//just approve the number
+bool isNumID(string userID) {
+	if (userID.empty()) {
+		return false;
+	}
+	for (int i = 0; i < userID.length(); i++) {
+		if (!isdigit(userID[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+//just approve the alphabet only username
+bool isWordName(string userName) {
+	if (userName.empty()) {
+		return false;
+	}
+	for (int i = 0; i < userName.length(); i++) {
+		if (!isalpha(userName[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+//just approve the number only for phone Number
+bool isNumPhone(string phoneNum) {
+	if (phoneNum.empty()) {
+		return false;
+	}
+	for (int i = 0; i < phoneNum.length(); i++) {
+		if (!isdigit(phoneNum[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+//valid first number = 0
+
+void userMenu() {
+	int userChoice;
+	do {
+		cout << "\n==========================================\n";
+		cout << "                   User Menu              ";
+		cout << "\n==========================================\n";
+
+		promptUserMenu();
+		userChoice = getMenuChoice(1, 6);
+		switch (userChoice)
+		{
+
+		case 1:
+			addUser();
+			break;
+		case 2:
+			updateUser();
+			break;
+		case 3:
+			deleteUser();
+			break;
+		case 4:
+			searchUser();
+			break;
+		case 5:
+			displayUser();
+			break;
+		case 6:
+			cout << "Exiting User Menu" << endl;
+			break;
+		default:
+			cout << "Please enter 1-6" << endl;
+			// case 1-6
+
+		}
+	} while (userChoice != 6);
+}
+
+void addUser() {
+
+	displayHeader("Add UserID");
+
+	// > maxUsers
+	if (userCount >= maxUsers) {
+		cout << "Our User member are full" << endl;
+		return;
+	}
+
+	// Add userID
+	GymUser newUser;
+	cout << "Enter UserID(first Num = 0): ";
+	while (true) {
+		cin >> newUser.userID;
+
+		if (newUser.userID[0] != '0') {
+			cout << "[ERROR] First Number start with (0):" << endl;
+			cout << "Please try Again: ";
+		}
+		else if (!isNumID(newUser.userID)) {
+			cout << "[ERROR] UserID must contain numbers only!" << endl;
+			cout << "Please try Again: ";
+		}
+		else if (newUser.userID.length() != 4) {
+			cout << "[ERROR] UserID number should 4 :" << endl;
+			cout << "Please try Again: ";
+
+		}
+		else if (IsValidUserID(newUser.userID)) {
+			cout << "[ERROR] UserID already exist. " << endl;
+			cout << "Please try Again: ";
+			clearInputBuffer();
+		}
+		else {
+			break;
+		}
+	}
+
+	//Add userName
+	cout << "Enter Username (MAX 4 character): " << endl;
+	while (true) {
+		cin >> newUser.userName;
+		if (!isWordName(newUser.userName)) {
+			cout << "[ERROR] UserName must type (alphabet) " << endl;
+			cout << "Please try Again: ";
+		}
+		else if (newUser.userName.length() > 4 || newUser.userName.empty()) {
+			cout << "[ERROR] Username must below 5 charaters" << endl;
+			cout << "Please try Again: ";
+		}
+		else {
+			break;
+		}
+	};
+
+	//Add PhoneNumber
+	cout << "Enter PhoneNumber(MAX 11 character): " << endl;
+
+	while (true) {
+		cin >> newUser.phoneNum;
 
 
+		if (newUser.phoneNum[0] != '0' || newUser.phoneNum[1] != '1') {
+			cout << "[ERROR] Not a phone number format" << endl;
+			cout << "Please try Again: ";
+		}
+		else if (!isNumPhone(newUser.phoneNum)) {
+			cout << "[ERROR] UserID must contain numbers only!" << endl;
+			cout << "Please try Again: ";
+		}
+		else if (newUser.phoneNum.length() > 11 || newUser.phoneNum.length() < 10) {
+			cout << "[ERROR] PhoneNumber must 10 - 11 character" << endl;
+			cout << "Please try Again: ";
+		}
+		else if (IsValidPhoneNum(newUser.phoneNum)) {
+			cout << "[ERROR] Phone Number had been used. Please Try Again:" << endl;
+			cout << "Please Try Again : ";
+		}
+		else {
+			break;
+		}
+	}
+
+	//Add packageID
+	while (true) {
+		cout << "Enter package ID : ";
+		cin >> newUser.userPackage;
+		if (isDuplicateID(newUser.userPackage)) {
+			users[userCount] = newUser;
+			userCount++;
+			saveUserToFile();
+
+			cout << "\n========================================\n";
+			cout << "|        USER ADDED SUCCESSFULLY!      |\n";
+			cout << "========================================\n";
+			cout << " User ID       : " << newUser.userID << endl;
+			cout << " Username      : " << newUser.userName << endl;
+			cout << " Phone Number  : " << newUser.phoneNum << endl;
+			cout << " Package ID    : " << newUser.userPackage << endl;
+			cout << "========================================\n";
+			return;
+		}
+		else {
+			cout << "\n==========================================\n";
+			cout << "| [ERROR] Unaccepted! Invalid Package ID.|\n";
+			cout << "| User record was NOT saved.             |";
+			cout << "\n==========================================\n";
+			return;
+		}
+	}
+}
+
+void updateUser() {
+	displayHeader("Update User");
+	string userid;
+	string username;
+	string packageid;
+	string phonenum;
+
+	cout << "Enter your ID: ";
+	cin >> userid;
+
+	bool found = false;
+	for (int i = 0; i < userCount; i++) {
+		if (users[i].userID == userid) {
+			found = true;
+			cout << "\n Found The UserID! \n";
+
+			//Key in Username
+			cout << "Enter New Username: ";
+			while (true) {
+				cin >> username;
+				if (!isWordName(username)) {
+					cout << "[ERROR] UserName must type (alphabet) " << endl;
+					cout << "Please try Again: ";
+				}
+				else if (username.length() > 4 || username.empty()) {
+					cout << "[ERROR] Username must below 5 charaters" << endl;
+					cout << "Please try Again: ";
+				}
+				else {
+					break;
+				}
+			};
+			//Key in Phone Number
+			cout << "Enter New Phone Number:";
+			while (true) {
+				cin >> phonenum;
+
+				if (phonenum[0] != '0' || phonenum[1] != '1' || !isNumPhone(phonenum) || phonenum.length() > 11 || phonenum.length() < 10) {
+					cout << "[ERROR] Not a phone number format" << endl;
+					cout << "Please try Again: ";
+				}
+				else if (phonenum != users[i].phoneNum && IsValidPhoneNum(phonenum)) {
+					cout << "[ERROR] Phone Number have been exist!" << endl;
+					cout << "Please try Again: ";
+				}
+				else {
+					break;
+				}
+			}
+
+			//Key in userPackage
+			while (true) {
+				cout << "Enter new packageID: ";
+				cin >> packageid;
+				if (isDuplicateID(packageid)) {
+					users[i].userName = username;
+					users[i].phoneNum = phonenum;
+					users[i].userPackage = packageid;
+					saveUserToFile();
+
+					cout << "\n========================================\n";
+					cout << "|        USER UPDATE SUCCESSFULLY!      |\n";
+					cout << "========================================\n";
+					cout << "New UserID: " << users[i].userID << endl;
+					cout << "New Username: " << users[i].userName << endl;
+					cout << "New phoneNum: " << users[i].phoneNum << endl;
+					cout << "New package: " << users[i].userPackage << endl;
+					cout << "========================================\n";
+					return;
+				}
+				else {
+					cout << "[ERROR] Invalid PacakageID";
+					cout << "UPDATE Operator Be Cancel";
+					return;
+				}
+			}
+		}
+	}
+	if (!found) {
+		cout << "User ID not found!" << endl;
+	}
+}
+
+void deleteUser() {
+	displayHeader("Delete User");
+
+	string userid;
+	string check;
+	cout << "Enter Existing UserID ";
+	cin >> userid;
+	cout << "\nPlease Double confirm\n";
+	cout << "Enter 'YES' OR 'NO' : ";
+	cin >> check;
+
+	if (check != "YES") {
+		cout << "Cancel the delete statement";
+		return;
+	}
+
+	bool found = false;
+	for (int i = 0; i < userCount; i++) {
+		if (users[i].userID == userid) {
+			for (int j = i; j < userCount - 1; j++) {
+				users[j] = users[j + 1];
+			}
+			userCount--;
+			saveUserToFile();
+
+			cout << "Delete [SUCCESS]!" << endl;
+			found = true;
+			break;
+		}
+	}
+
+	if (!found) {
+		cout << "User ID not found!" << endl;
+	}
+
+
+}
+
+void searchUser() {
+	displayHeader("Search User");
+
+	string userid;
+	cout << "Enter UserID: ";
+	cin >> userid;
+
+	//loop for found UserID
+	bool found = false;
+	for (int i = 0; i < userCount; i++) {
+		if (users[i].userID == userid) {
+			cout << "[SUCCESS] Found UserID!" << endl;
+			cout << "UserID: " << users[i].userID << endl;
+			cout << "Username: " << users[i].userName << endl;
+			cout << "Phone Number: " << users[i].phoneNum << endl;
+			cout << "Package ID: " << users[i].userPackage << endl;
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		cout << "[ERROR]User ID not be found!" << endl;
+	}
+}
+
+void displayUser() {
+	displayHeader("Display All User");
+
+	cout << left
+		<< setw(14) << "UserID"
+		<< setw(16) << "UserName"
+		<< setw(25) << "PhoneNumber"
+		<< setw(32) << "Package ID" << endl;
+
+	for (int i = 0; i < userCount; i++) {
+		cout << left << setw(1)
+			<< setw(14) << users[i].userID
+			<< setw(16) << users[i].userName
+			<< setw(25) << users[i].phoneNum
+			<< setw(30) << users[i].userPackage << endl;
+	}
+
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PACKAGE MODULE
@@ -663,7 +1098,7 @@ void cancelBooking() {
 				break;
 			}
 		}
-		for (int i = index; i < bookingCount - 1;i++) {
+		for (int i = index; i < bookingCount - 1; i++) {
 			bookings[i] = bookings[i + 1];
 		}
 		bookingCount--;
@@ -750,7 +1185,7 @@ void searchBooking() {
 		"Time Slot" << "Status" << endl;
 
 	// check booking and exit or not
-	for (int i = 0; i < bookingCount;i++) {
+	for (int i = 0; i < bookingCount; i++) {
 		if (bookings[i].bookingID == searchID) {
 			cout << left << setw(6) << (i + 1) << setw(15) << bookings[i].userName
 				<< setw(15) << bookings[i].date << status_to_string(bookings[i].bookingStatus) << endl;
@@ -855,7 +1290,7 @@ void ReportMenu() {
 }
 void ReportUser() {
 	system("cls");
-	ifstream userFile("UserData.txt"); // CHANGE ACCORDING THE FILE NAME 
+	ifstream userFile("GymUser.txt"); // CHANGE ACCORDING THE FILE NAME 
 	ifstream packageFile("PackageData.txt"); // CHANGE ACCORDING THE FILE NAME
 	if (!userFile || !packageFile) {
 		cout << '\a' << "||Error opening files!||" << endl;
@@ -871,9 +1306,9 @@ void ReportUser() {
 		}
 		packages[packageCount] = temppackage;
 	}
-	UserData tempuser;
+	GymUser tempuser;
 	for (userCount = 0; userCount < maxUsers; userCount++) {
-		userFile >> tempuser.userID >> tempuser.userName >> tempuser.phoneNum >> tempuser.packageID;
+		userFile >> tempuser.userID >> tempuser.userName >> tempuser.phoneNum >> tempuser.userPackage;
 		if (userFile.fail()) {
 			break;
 		}
@@ -891,7 +1326,7 @@ void ReportUser() {
 	}
 	else system("cls");
 }
-void ReportSorting(UserData users[], GymPackage packages[], int userCount, int packageCount) {
+void ReportSorting(GymUser users[], GymPackage packages[], int userCount, int packageCount) {
 	int sortingChoice;
 	string repeatornot;
 	do {
@@ -946,7 +1381,7 @@ void ReportSorting(UserData users[], GymPackage packages[], int userCount, int p
 }
 void ReportRevenue() {
 	system("cls");
-	ifstream userFile("UserData.txt"); // CHANGE ACCORDING THE FILE NAME 
+	ifstream userFile("GymUser.txt"); // CHANGE ACCORDING THE FILE NAME 
 	ifstream packageFile("PackageData.txt"); // CHANGE ACCORDING THE FILE NAME
 	if (!userFile || !packageFile) {
 		cout << '\a' << "||Error opening files!||" << endl;
@@ -963,9 +1398,9 @@ void ReportRevenue() {
 		packages[packageCount] = temppackage;
 	}
 	packageFile.close();
-	UserData tempuser; // load all user data first to prepare
+	GymUser tempuser; // load all user data first to prepare
 	for (userCount = 0; userCount < maxUsers; userCount++) {
-		userFile >> tempuser.userID >> tempuser.userName >> tempuser.phoneNum >> tempuser.packageID;
+		userFile >> tempuser.userID >> tempuser.userName >> tempuser.phoneNum >> tempuser.userPackage;
 		if (userFile.fail()) {
 			break;
 		}
@@ -986,7 +1421,7 @@ void ReportRevenue() {
 	for (int i = 0; i < packageCount; i++) {
 		int numberOfUsers = 0;
 		for (int j = 0; j < userCount; j++) {
-			if (users[j].packageID == packages[i].packageID) {
+			if (users[j].userPackage == packages[i].packageID) {
 				numberOfUsers++;
 			}
 		}
@@ -1011,7 +1446,7 @@ void ReportRevenue() {
 }
 void ReportStatistics() {
 	system("cls");
-	ifstream userFile("UserData.txt"); // CHANGE ACCORDING THE FILE NAME 
+	ifstream userFile("GymUser.txt"); // CHANGE ACCORDING THE FILE NAME 
 	ifstream packageFile("PackageData.txt"); // CHANGE ACCORDING THE FILE NAME
 	if (!userFile || !packageFile) {
 		cout << '\a' << "||Error opening files!||" << endl;
@@ -1028,9 +1463,9 @@ void ReportStatistics() {
 		packages[packageCount] = temppackage;
 	}
 	packageFile.close();
-	UserData tempuser; // load all user data first to prepare
+	GymUser tempuser; // load all user data first to prepare
 	for (userCount = 0; userCount < maxUsers; userCount++) {
-		userFile >> tempuser.userID >> tempuser.userName >> tempuser.phoneNum >> tempuser.packageID;
+		userFile >> tempuser.userID >> tempuser.userName >> tempuser.phoneNum >> tempuser.userPackage;
 		if (userFile.fail()) {
 			break;
 		}
@@ -1050,7 +1485,7 @@ void ReportStatistics() {
 	for (int i = 0; i < packageCount; i++) {
 		int numberofUsers = 0;
 		for (int j = 0; j < userCount; j++) {
-			if (users[j].packageID == packages[i].packageID) {
+			if (users[j].userPackage == packages[i].packageID) {
 				numberofUsers++;
 			}
 		}
@@ -1073,7 +1508,7 @@ void ReportStatistics() {
 	system("pause");
 	system("cls");
 }
-void ReportPrintuser(UserData users[], GymPackage packages[], int userCount, int packageCount) {
+void ReportPrintuser(GymUser users[], GymPackage packages[], int userCount, int packageCount) {
 	displayHeader("USER REPORT");
 	cout << left << setw(20) << "User ID"
 		<< setw(20) << "User Name"
@@ -1089,7 +1524,7 @@ void ReportPrintuser(UserData users[], GymPackage packages[], int userCount, int
 		bool packageFound = false;
 		int matchedid = -1;
 		for (int j = 0; j < packageCount; j++) { //to find the location of matched package id in array
-			if (users[i].packageID == packages[j].packageID) {
+			if (users[i].userPackage == packages[j].packageID) {
 				packageFound = true;
 				matchedid = j;
 				break;
@@ -1098,7 +1533,7 @@ void ReportPrintuser(UserData users[], GymPackage packages[], int userCount, int
 		cout << left << setw(20) << users[i].userID
 			<< setw(20) << users[i].userName
 			<< setw(20) << users[i].phoneNum
-			<< setw(20) << users[i].packageID;
+			<< setw(20) << users[i].userPackage;
 		if (packageFound == false) {
 			cout << setw(20) << "No Package Found"
 				<< setw(20) << "No Package Found" << endl;
@@ -1116,4 +1551,5 @@ void ReportPrintuser(UserData users[], GymPackage packages[], int userCount, int
 	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//PAYMENT MODULE
 // PAYMENT MODULE
