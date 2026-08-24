@@ -13,7 +13,7 @@ void ReportUser();
 void ReportSorting(UserData users[], GymPackage packages[], int userCount, int packageCount);
 void ReportRevenue();
 void ReportStatistics();
-void ReportBooking();
+void ReportPrintuser(UserData users[], GymPackage packages[], int userCount, int packageCount);
 void displayHeader(string title);
 //Enum
 enum package_status {
@@ -46,9 +46,8 @@ int PackageCount = 0;
 //Global variable 
 
 int main() {
-	// remove later
 	ReportMenu();
-	return 0;
+return 0;
 }
 void displayHeader(string title) {
 	for (int i = 0; i < 120; i++) {
@@ -68,8 +67,7 @@ void ReportMenu() {
 		cout << "1. User Report" << endl;
 		cout << "2. Revenue Report" << endl;
 		cout << "3. Statistics Report" << endl;
-		cout << "4. Booking Report" << endl;
-		cout << "5. Exit" << endl;
+		cout << "4. Exit" << endl;
 		cout << "Enter your choice (1-5): ";
 		cin >> choice;
 		if (cin.fail()) {		
@@ -87,15 +85,12 @@ void ReportMenu() {
 			ReportStatistics();
 			break;
 		case 4:
-			ReportBooking();
-			break;
-		case 5:
 			break;
 		default:
 			system("cls");
 			cout << '\a'<< "||Invalid choice. Please select between 1 and 5.||" << endl;
 		}
-	} while (choice != 5);
+	} while (choice != 4);
 }
 void ReportUser() {
 	system("cls");
@@ -124,46 +119,7 @@ void ReportUser() {
 		users[UserCount] = tempuser;
 	}
 	packageFile.close();
-	displayHeader("USER REPORT");
-	cout << left << setw(20) << "User ID"
-		<< setw(20) << "User Name"
-		<< setw(20) << "Phone Number"
-		<< setw(20) << "Package ID"
-		<< setw(20) << "Package Name"
-		<< setw(20) << "Duration (Days)" << endl;
-	for (int i = 0; i < 120; i++) {
-		cout << '-';
-	}
-	cout << endl;
-	for (int i = 0; i < UserCount; i++) {
-		bool packageFound = false;
-		int matchedid = -1;
-		for (int j = 0; j < PackageCount; j++) {
-			if (users[i].packageID == packages[j].packageID) {
-				packageFound = true;
-				matchedid = j;
-				break;
-			}
-		}
-		cout << left << setw(20) << users[i].userID
-			<< setw(20) << users[i].userName
-			<< setw(20) << users[i].phoneNum
-			<< setw(20) << users[i].packageID;
-		if (packageFound == false) {
-			cout << setw(20) << "No Package Found"
-				<< setw(20) << "No Package Found" << endl;
-		}
-		else {
-			if (package_status::Active == packages[matchedid].packageStatus) {
-				cout << setw(20) << packages[matchedid].packageName
-					<< setw(20) << packages[matchedid].durationDays << endl;
-			}
-			else {
-				cout << setw(20) << "Illegal Package"
-					<< setw(20) << "Illegal Package" << endl;
-			}
-		}
-	}
+	ReportPrintuser(users, packages, UserCount, PackageCount);
 	string choicedirection;
 	displayHeader("Press 1 to sort the report or any other key to return to the report menu ");
 	cout << "\nEnter your choice: ";
@@ -199,46 +155,7 @@ void ReportSorting(UserData users[], GymPackage packages[], int userCount, int p
 				}
 			}
 			system("cls");
-			displayHeader("USER REPORT");
-			cout << left << setw(20) << "User ID"
-				<< setw(20) << "User Name"
-				<< setw(20) << "Phone Number"
-				<< setw(20) << "Package ID"
-				<< setw(20) << "Package Name"
-				<< setw(20) << "Duration (Days)" << endl;
-			for (int i = 0; i < 120; i++) {
-				cout << '-';
-			}
-			cout << endl;
-			for (int i = 0; i < UserCount; i++) {
-				bool packageFound = false;
-				int matchedid = -1;
-				for (int j = 0; j < PackageCount; j++) {
-					if (users[i].packageID == packages[j].packageID) {
-						packageFound = true;
-						matchedid = j;
-						break;
-					}
-				}
-				cout << left << setw(20) << users[i].userID
-					<< setw(20) << users[i].userName
-					<< setw(20) << users[i].phoneNum
-					<< setw(20) << users[i].packageID;
-				if (packageFound == false) {
-					cout << setw(20) << "No Package Found"
-						<< setw(20) << "No Package Found" << endl;
-				}
-				else {
-					if (package_status::Active == packages[matchedid].packageStatus) {
-						cout << setw(20) << packages[matchedid].packageName
-							<< setw(20) << packages[matchedid].durationDays << endl;
-					}
-					else {
-						cout << setw(20) << "Illegal Package"
-							<< setw(20) << "Illegal Package" << endl;
-					}
-				}
-			}
+			ReportPrintuser(users, packages, UserCount, PackageCount);
 			break;
 		case 2:
 			for (int j = 0; j < UserCount - 1; j++) { // bubble sorting 
@@ -249,46 +166,7 @@ void ReportSorting(UserData users[], GymPackage packages[], int userCount, int p
 				}
 			}
 			system("cls");
-			displayHeader("USER REPORT");
-			cout << left << setw(20) << "User ID"
-				<< setw(20) << "User Name"
-				<< setw(20) << "Phone Number"
-				<< setw(20) << "Package ID"
-				<< setw(20) << "Package Name"
-				<< setw(20) << "Duration (Days)" << endl;
-			for (int i = 0; i < 120; i++) {
-				cout << '-';
-			}
-			cout << endl;
-			for (int i = 0; i < UserCount; i++) {
-				bool packageFound = false;
-				int matchedid = -1;
-				for (int j = 0; j < PackageCount; j++) {
-					if (users[i].packageID == packages[j].packageID) {
-						packageFound = true;
-						matchedid = j;
-						break;
-					}
-				}
-				cout << left << setw(20) << users[i].userID
-					<< setw(20) << users[i].userName
-					<< setw(20) << users[i].phoneNum
-					<< setw(20) << users[i].packageID;
-				if (packageFound == false) {
-					cout << setw(20) << "No Package Found"
-						<< setw(20) << "No Package Found" << endl;
-				}
-				else {
-					if (package_status::Active == packages[matchedid].packageStatus) {
-						cout << setw(20) << packages[matchedid].packageName
-							<< setw(20) << packages[matchedid].durationDays << endl;
-					}
-					else {
-						cout << setw(20) << "Illegal Package"
-							<< setw(20) << "Illegal Package" << endl;
-					}
-				}
-			}
+		ReportPrintuser(users, packages, UserCount, PackageCount);
 			break;
 		default:
 			system("cls");
@@ -434,6 +312,45 @@ void ReportStatistics() {
 	system("pause");
 	system("cls");
 }
-void ReportBooking() {
-
+void ReportPrintuser(UserData users[], GymPackage packages[], int userCount, int packageCount) {
+	displayHeader("USER REPORT");
+	cout << left << setw(20) << "User ID"
+		<< setw(20) << "User Name"
+		<< setw(20) << "Phone Number"
+		<< setw(20) << "Package ID"
+		<< setw(20) << "Package Name"
+		<< setw(20) << "Duration (Days)" << endl;
+	for (int i = 0; i < 120; i++) {
+		cout << '-';
+	}
+	cout << endl;
+	for (int i = 0; i < UserCount; i++) {
+		bool packageFound = false;
+		int matchedid = -1;
+		for (int j = 0; j < PackageCount; j++) { //to find the location of matched package id in array
+			if (users[i].packageID == packages[j].packageID) {
+				packageFound = true;
+				matchedid = j;
+				break;
+			}
+		}
+		cout << left << setw(20) << users[i].userID
+			<< setw(20) << users[i].userName
+			<< setw(20) << users[i].phoneNum
+			<< setw(20) << users[i].packageID;
+		if (packageFound == false) {
+			cout << setw(20) << "No Package Found"
+				<< setw(20) << "No Package Found" << endl;
+		}
+		else {
+			if (package_status::Active == packages[matchedid].packageStatus) {
+				cout << setw(20) << packages[matchedid].packageName
+					<< setw(20) << packages[matchedid].durationDays << endl;
+			}
+			else {
+				cout << setw(20) << "Inactive Package"
+					<< setw(20) << "Inactive Package" << endl;
+			}
+		}
+	}
 }
