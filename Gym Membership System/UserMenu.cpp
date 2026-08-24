@@ -387,8 +387,8 @@ void addUser() {
 		cin >> newUser.phoneNum;
 
 
-		if (newUser.phoneNum[0] != '0') {
-			cout << "[ERROR] First Number start with (0)" << endl;
+		if (newUser.phoneNum[0] != '0' || newUser.phoneNum[1] != '1') {
+			cout << "[ERROR] Not a phone number format" << endl;
 			cout << "Please try Again: ";
 		}
 		else if (!isNumPhone(newUser.phoneNum)) {
@@ -474,7 +474,7 @@ void updateUser() {
 			while (true) {
 				cin >> phonenum;
 
-				if (phonenum[0] != '0' || !isNumPhone(phonenum) || phonenum.length() > 11 || phonenum.length() < 10) {
+				if (phonenum[0] != '0' || phonenum[1] != '1' || !isNumPhone(phonenum) || phonenum.length() > 11 || phonenum.length() < 10) {
 					cout << "[ERROR] Not a phone number format" << endl;
 					cout << "Please try Again: ";
 				}
