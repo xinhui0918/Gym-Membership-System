@@ -325,10 +325,7 @@ bool isNumPhone(string phoneNum) {
 void userMenu() {
 	int userChoice;
 	do {
-		cout << "\n==========================================\n";
-		cout << "                   User Menu              ";
-		cout << "\n==========================================\n";
-
+		displayHeader("User Menu");
 		promptUserMenu();
 		userChoice = getMenuChoice(1, 6);
 		switch (userChoice)
