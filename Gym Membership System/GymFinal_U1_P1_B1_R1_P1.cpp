@@ -1469,8 +1469,8 @@ void ReportRevenue() {
 }
 void ReportStatistics() {
 	system("cls");
-	ifstream userFile("GymUser.txt"); // CHANGE ACCORDING THE FILE NAME 
-	ifstream packageFile("PackageData.txt"); // CHANGE ACCORDING THE FILE NAME
+	ifstream userFile("GymUser.txt"); //DO NOT CHANGE THE NAME
+	ifstream packageFile("PackageData.txt");
 	if (!userFile || !packageFile) {
 		cout << '\a' << "||Error opening files!||" << endl;
 		exit(1);
