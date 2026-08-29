@@ -7,7 +7,7 @@
 using namespace std;
 // Forward declarations of structs so prototypes can use them
 struct GymUser;
-struct GymPackage; // because report functiond declaration define early then those struct thus need to mention it at here
+struct GymPackage;
 //Function declaration
 // GENERAL FUNCTION
 int getMenuChoice(int low, int high);
@@ -24,6 +24,7 @@ void searchUser();
 void displayUser();
 void loadUserFromFile();
 void saveUserToFile();
+
 // PACKAGE MODULE
 void packageMenu();
 void addPackage();
@@ -41,8 +42,19 @@ void modifyBooking();
 void searchBooking();
 void displayBooking();
 void booking();
-void saveBookingToFile();
+void saveBooking();
 void loadBookingFromFile();
+// Payment MODULE
+int findTransactionIndex(int transactionID);
+void paymentMenu();
+void payment();
+void paymentProcess();
+void displayReceipt();
+void refundProcess();
+void searchTransaction();
+void displayPaymentHistory();
+void loadPaymentFromFile();
+void savePaymentToFile();
 // REPORT MODULE 
 void ReportMenu();
 void ReportUser();
@@ -50,17 +62,7 @@ void ReportSorting(GymUser users[], GymPackage packages[], int userCount, int pa
 void ReportRevenue();
 void ReportStatistics();
 void ReportPrintuser(GymUser users[], GymPackage packages[], int userCount, int packageCount);
-// PAYMENT MODULE /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int findTransactionIndex(int transactionID);
-void paymentProcess();
-void displayReceipt();
-void refundProcess();
-void searchTransaction();
-void displayPaymentHistory();
-void payment();
-void loadPaymentFromFile();
-void savePaymentToFile();
-
+// PAYMENT MODULE
 //Enum
 enum package_status {
 	PackageActive,
@@ -73,9 +75,8 @@ enum booking_status {
 string  status_to_string(booking_status status) {
 	return (status == BookingActive) ? "Active" : "Inactive";
 }
-
-string statusToString(package_status status) ;
-
+string status_to_string(booking_status status);
+string statusToString(package_status status);
 //Structure declaration
 //GymUser module	
 struct GymUser {
@@ -110,7 +111,6 @@ struct timeSlot {
 	bool isBooked;
 };
 
-//payment module
 struct PaymentTransaction {
 	int transactionID;
 	string userID;
@@ -125,18 +125,16 @@ const int maxUsers = 50;
 const int maxPackages = 50;
 const int maxBooking = 50;
 const int MAX_TRANSACTIONS = 50;
-
 GymUser users[maxUsers];
 GymPackage packages[maxPackages];
 Gymbooking bookings[maxBooking];
 PaymentTransaction transactions[MAX_TRANSACTIONS];
-
 int userCount = 0;
 int packageCount = 0;
 int bookingCount = 0;
-int new_booking_id = 2001;
 int transactionCount = 0;
-int nextTransactionID = 1001;
+int new_booking_id = 2001;
+int nextTransactionID = 3001;
 
 //booking 
 //set the time slot and array it
@@ -160,6 +158,7 @@ int main() {
 	loadUserFromFile();
 	loadPackageFromFile();
 	loadBookingFromFile();
+	loadPaymentFromFile();
 	MainMenu();
 }
 //General Use function
@@ -188,7 +187,7 @@ int getMenuChoice(int low, int high) {
 			valid = true;
 		}
 		else {
-			cout << " Invalid Input ! Try again." << endl;
+			cout << " Invalid Input ! Please enter 1-6" << endl;
 			clearInputBuffer();
 		}
 	}
@@ -232,7 +231,7 @@ void MainMenu() {
 			break;
 		default:
 			system("cls");
-			cout << '\a' << "||Invalid choice. Please select between 1 and 5.||" << endl;
+			cout << '\a' << "Invalid choice. Please select 1-6." << endl;
 		}
 	} while (choice != 6);
 }
@@ -240,7 +239,7 @@ void MainMenu() {
 // USER MODULE
 bool isDuplicateID(string id);
 void loadUserFromFile() {
-	ifstream inData("GymUser.txt");
+	ifstream inData("UserData.txt");
 
 	if (!inData) {
 		users[0] = { "0001", "Tan", "0193257193", "1001" },
@@ -265,7 +264,7 @@ void loadUserFromFile() {
 };
 
 void saveUserToFile() {
-	ofstream outData("GymUser.txt");
+	ofstream outData("UserData.txt");
 
 	if (!outData) {
 		cout << "[Error] Unable to open User data file" << endl;
@@ -282,12 +281,12 @@ void saveUserToFile() {
 }
 
 void promptUserMenu() {
-	cout << "| 1. Add User                            |" << endl;
-	cout << "| 2. Update User                         |" << endl;
-	cout << "| 3. Delete User                         |" << endl;
-	cout << "| 4. Search Users                        |" << endl;
-	cout << "| 5. Display Users                       |" << endl;
-	cout << "| 6. Exit                                |" << endl;
+	cout << " 1. Add User                            " << endl;
+	cout << " 2. Update User                         " << endl;
+	cout << " 3. Delete User                         " << endl;
+	cout << " 4. Search Users                        " << endl;
+	cout << " 5. Display Users                       " << endl;
+	cout << " 6. Exit                                " << endl;
 }
 
 //user valid ID exist
@@ -310,7 +309,7 @@ bool IsValidPhoneNum(string phoneNum) {
 	return false;
 }
 
-//just approve the number
+//just approve the number only for user ID
 bool isNumID(string userID) {
 	if (userID.empty()) {
 		return false;
@@ -323,7 +322,7 @@ bool isNumID(string userID) {
 	return true;
 }
 
-//just approve the alphabet only username
+//just approve the alphabet only for username
 bool isWordName(string userName) {
 	if (userName.empty()) {
 		return false;
@@ -353,7 +352,7 @@ bool isNumPhone(string phoneNum) {
 void userMenu() {
 	int userChoice;
 	do {
-		displayHeader("User Menu");
+		displayHeader("USER MENU");
 		promptUserMenu();
 		userChoice = getMenuChoice(1, 6);
 		switch (userChoice)
@@ -378,7 +377,7 @@ void userMenu() {
 			cout << "Exiting User Menu" << endl;
 			break;
 		default:
-			cout << "Please enter 1-6" << endl;
+			cout << "Invalid choice. Please select 1-6." << endl;
 			// case 1-6
 
 		}
@@ -397,25 +396,31 @@ void addUser() {
 
 	// Add userID
 	GymUser newUser;
+	clearInputBuffer();
+
 	cout << "Enter UserID(first Num = 0): ";
 	while (true) {
-		cin >> newUser.userID;
+		getline(cin, newUser.userID);
 
-		if (newUser.userID[0] != '0') {
+		if (newUser.userID.empty()) {
+			cout << "[ERROR] User ID cannot be empty!" << endl;
+			cout << "Please try again: ";
+		}
+		else if (newUser.userID[0] != '0') {
 			cout << "[ERROR] First Number start with (0):" << endl;
 			cout << "Please try Again: ";
 		}
 		else if (!isNumID(newUser.userID)) {
-			cout << "[ERROR] UserID must contain numbers only!" << endl;
+			cout << "[ERROR] User ID must contain numbers only!" << endl;
 			cout << "Please try Again: ";
 		}
 		else if (newUser.userID.length() != 4) {
-			cout << "[ERROR] UserID number should 4 :" << endl;
+			cout << "[ERROR] User ID number should 4 :" << endl;
 			cout << "Please try Again: ";
 
 		}
 		else if (IsValidUserID(newUser.userID)) {
-			cout << "[ERROR] UserID already exist. " << endl;
+			cout << "[ERROR] User ID already exist. " << endl;
 			cout << "Please try Again: ";
 			clearInputBuffer();
 		}
@@ -425,10 +430,15 @@ void addUser() {
 	}
 
 	//Add userName
-	cout << "Enter Username (MAX 4 character): " << endl;
+	cout << "Enter Username (MAX 4 character): ";
 	while (true) {
-		cin >> newUser.userName;
-		if (!isWordName(newUser.userName)) {
+		getline(cin, newUser.userName);
+
+		if (newUser.userName.empty()) {
+			cout << "[ERROR] Username cannot be empty!" << endl;
+			cout << "Please try again: ";
+		}
+		else if (!isWordName(newUser.userName)) {
 			cout << "[ERROR] UserName must type (alphabet) " << endl;
 			cout << "Please try Again: ";
 		}
@@ -442,13 +452,16 @@ void addUser() {
 	};
 
 	//Add PhoneNumber
-	cout << "Enter PhoneNumber(MAX 11 character): " << endl;
+	cout << "Enter PhoneNumber(MAX 11 character): ";
 
 	while (true) {
-		cin >> newUser.phoneNum;
+		getline(cin, newUser.phoneNum);
 
-
-		if (newUser.phoneNum[0] != '0' || newUser.phoneNum[1] != '1') {
+		if (newUser.phoneNum.empty()) {
+			cout << "[ERROR] Phone Number cannot be empty!" << endl;
+			cout << "Please try again: ";
+		}
+		else if (newUser.phoneNum[0] != '0' || newUser.phoneNum[1] != '1') {
 			cout << "[ERROR] Not a phone number format" << endl;
 			cout << "Please try Again: ";
 		}
@@ -514,11 +527,17 @@ void updateUser() {
 			found = true;
 			cout << "\n Found The UserID! \n";
 
+			clearInputBuffer();
 			//Key in Username
 			cout << "Enter New Username: ";
 			while (true) {
-				cin >> username;
-				if (!isWordName(username)) {
+				getline(cin, username);
+
+				if (username.empty()) {
+					cout << "[ERROR] Username cannot be empty!" << endl;
+					cout << "Please try again: ";
+				}
+				else if (!isWordName(username)) {
 					cout << "[ERROR] UserName must type (alphabet) " << endl;
 					cout << "Please try Again: ";
 				}
@@ -533,9 +552,13 @@ void updateUser() {
 			//Key in Phone Number
 			cout << "Enter New Phone Number:";
 			while (true) {
-				cin >> phonenum;
+				getline(cin, phonenum);
 
-				if (phonenum[0] != '0' || phonenum[1] != '1' || !isNumPhone(phonenum) || phonenum.length() > 11 || phonenum.length() < 10) {
+				if (phonenum.empty()) {
+					cout << "[ERROR] Phone Number cannot be empty!" << endl;
+					cout << "Please try again: ";
+				}
+				else if (phonenum[0] != '0' || phonenum[1] != '1' || !isNumPhone(phonenum) || phonenum.length() > 11 || phonenum.length() < 10) {
 					cout << "[ERROR] Not a phone number format" << endl;
 					cout << "Please try Again: ";
 				}
@@ -586,14 +609,14 @@ void deleteUser() {
 
 	string userid;
 	string check;
-	cout << "Enter Existing UserID ";
+	cout << "Enter Existing UserID: ";
 	cin >> userid;
 	cout << "\nPlease Double confirm\n";
-	cout << "Enter 'YES' OR 'NO' : ";
+	cout << "Enter 'YES' OR 'NO' :";
 	cin >> check;
 
 	if (check != "YES") {
-		cout << "Cancel the delete statement";
+		cout << "Cancel the delete statement" << endl;
 		return;
 	}
 
@@ -663,6 +686,7 @@ void displayUser() {
 
 }
 
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PACKAGE MODULE
 
@@ -727,8 +751,8 @@ void savePackageToFile() {
 
 	outData.close();
 }
-// Validation Duplicate ID
-bool isDuplicateID (string id) {
+// Validation ID
+bool isDuplicateID(string id) {
 	for (int i = 0; i < packageCount; i++) {
 		if (packages[i].packageID == id) {
 			return true;
@@ -738,7 +762,7 @@ bool isDuplicateID (string id) {
 }
 
 // Validation Package ID must input All Numbers
-bool isNumID (string packageID) {
+bool isPackageNumID(string packageID) {
 	if (packageID.empty()) {
 		return false;
 	}
@@ -751,7 +775,7 @@ bool isNumID (string packageID) {
 }
 
 // Validation Package Name must input All Alphabets
-bool isWordName (string packageName) {
+bool isPackageWordName(string packageName) {
 	if (packageName.empty()) {
 		return false;
 	}
@@ -763,7 +787,6 @@ bool isWordName (string packageName) {
 	return true;
 }
 
-// Add package
 void addPackage() {
 	displayHeader("ADD NEW PACKAGE");
 	if (packageCount >= maxPackages) {
@@ -777,7 +800,7 @@ void addPackage() {
 		cout << "Enter package ID : ";
 		cin >> newPackage.packageID;
 
-		if (!isNumID(newPackage.packageID)) {
+		if (!isPackageNumID(newPackage.packageID)) {
 			cout << "[ERROR] Invalid Package ID ! Must input numbers only." << endl;
 		}
 		else if (isDuplicateID(newPackage.packageID)) {
@@ -793,9 +816,9 @@ void addPackage() {
 	// Validation Package Name
 	while (true) {
 		cout << "Enter package name : ";
-		getline (cin, newPackage.packageName);
+		getline(cin, newPackage.packageName);
 
-		if (!isWordName(newPackage.packageName)) {
+		if (!isPackageWordName(newPackage.packageName)) {
 			cout << "[ERROR] Invalid Package Name ! Must input alphabets only." << endl;
 		}
 		else {
@@ -1005,7 +1028,7 @@ void package() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BOOKING MODULE
 
-void saveBookingToFile() {
+void saveBookingFromFile() {
 	ofstream outFile;
 	outFile.open("bookings.txt");
 
@@ -1121,7 +1144,7 @@ void createBooking() {
 	new_booking_id++;
 	bookingCount++;
 
-	saveBookingToFile();
+	saveBookingFromFile();
 }
 // cancel booking
 void cancelBooking() {
@@ -1175,7 +1198,7 @@ void cancelBooking() {
 	else {
 		cout << "Cancellation aborted." << endl;
 	}
-	saveBookingToFile();
+	saveBookingFromFile();
 }
 // modify booking
 void modifyBooking() {
@@ -1236,7 +1259,7 @@ void modifyBooking() {
 	bookings[index].date = timeSlots[newSlot - 1].startTime + "-" + timeSlots[newSlot - 1].endTime;
 
 	cout << "Booking modified successfully. New time slot: " << bookings[index].date << endl;
-	saveBookingToFile();
+	saveBookingFromFile();
 }
 //search booking
 void searchBooking() {
@@ -1282,6 +1305,7 @@ void displayBooking() {
 			<< status_to_string(bookings[i].bookingStatus) << endl;
 		i++;
 	}
+
 }
 // booking menu choice
 void booking() {
@@ -1356,8 +1380,8 @@ void ReportMenu() {
 }
 void ReportUser() {
 	system("cls");
-	ifstream userFile("GymUser.txt");
-	ifstream packageFile("PackageData.txt"); 
+	ifstream userFile("GymUser.txt"); // CHANGE ACCORDING THE FILE NAME 
+	ifstream packageFile("PackageData.txt"); // CHANGE ACCORDING THE FILE NAME
 	if (!userFile || !packageFile) {
 		cout << '\a' << "||Error opening files!||" << endl;
 		exit(1);
@@ -1447,8 +1471,8 @@ void ReportSorting(GymUser users[], GymPackage packages[], int userCount, int pa
 }
 void ReportRevenue() {
 	system("cls");
-	ifstream userFile("GymUser.txt");
-	ifstream packageFile("PackageData.txt"); 
+	ifstream userFile("GymUser.txt"); // CHANGE ACCORDING THE FILE NAME 
+	ifstream packageFile("PackageData.txt"); // CHANGE ACCORDING THE FILE NAME
 	if (!userFile || !packageFile) {
 		cout << '\a' << "||Error opening files!||" << endl;
 		exit(1);
@@ -1478,7 +1502,7 @@ void ReportRevenue() {
 		<< setw(20) << "Package Name"
 		<< setw(20) << "Price"
 		<< setw(20) << "Number of Users"
-		<< setw(20) << "Total Revenue (RM)" << endl;
+		<< setw(20) << "Total Revenue" << endl;
 	for (int i = 0; i < 120; i++) {
 		cout << '-';
 	}
@@ -1505,15 +1529,15 @@ void ReportRevenue() {
 				<< setw(20) << "Package Is Inactive" << endl;
 		}
 	}
-	cout << "\nTotal Revenue from all packages: RM" << fixed << setprecision(2) << accumulatedTotalRevenue << endl;
+	cout << "\nTotal Revenue from all packages: " << fixed << setprecision(2) << accumulatedTotalRevenue << endl;
 	cout << "\nPress any key to return to the report menu" << endl;
 	system("pause");
 	system("cls");
 }
 void ReportStatistics() {
 	system("cls");
-	ifstream userFile("GymUser.txt"); //DO NOT CHANGE THE NAME
-	ifstream packageFile("PackageData.txt");
+	ifstream userFile("GymUser.txt"); // CHANGE ACCORDING THE FILE NAME 
+	ifstream packageFile("PackageData.txt"); // CHANGE ACCORDING THE FILE NAME
 	if (!userFile || !packageFile) {
 		cout << '\a' << "||Error opening files!||" << endl;
 		exit(1);
@@ -1618,24 +1642,17 @@ void ReportPrintuser(GymUser users[], GymPackage packages[], int userCount, int 
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //PAYMENT MODULE
+// PAYMENT MODULE
 // Load payment records from PaymentData.txt
-void paymentMenu() {
-	cout << "1. Make Payment" << endl;
-	cout << "2. Print Receipt" << endl;
-	cout << "3. Refund Payment" << endl;
-	cout << "4. Search Transaction" << endl;
-	cout << "5. Payment History" << endl;
-	cout << "6. Exit" << endl;
-}
 void loadPaymentFromFile() {
 	ifstream inData("PaymentData.txt");
 	if (!inData) {
 		transactionCount = 0;
-		nextTransactionID = 1001;
+		nextTransactionID = 3001;
 		return;
 	}
 	transactionCount = 0;
-	nextTransactionID = 1001;
+	nextTransactionID = 3001;
 	while (transactionCount < MAX_TRANSACTIONS &&
 		inData >> transactions[transactionCount].transactionID) {
 		inData.ignore(10000, '\n');
@@ -1645,15 +1662,14 @@ void loadPaymentFromFile() {
 			!(inData >> transactions[transactionCount].amount)) {
 			cout << "[ERROR] Payment data file is incomplete or corrupted.\n";
 			transactionCount = 0;
-			nextTransactionID = 1001;
+			nextTransactionID = 3001;
 			return;
 		}
 		inData.ignore(10000, '\n');
 		getline(inData, transactions[transactionCount].paymentMethod);
 		getline(inData, transactions[transactionCount].status);
 		if (transactions[transactionCount].transactionID >= nextTransactionID) {
-			nextTransactionID =
-				transactions[transactionCount].transactionID + 1;
+			nextTransactionID = transactions[transactionCount].transactionID + 1;
 		}
 		transactionCount++;
 	}
@@ -1678,6 +1694,7 @@ void savePaymentToFile() {
 	}
 	outData.close();
 }
+
 // Find transaction index by transaction ID
 int findTransactionIndex(int transactionID) {
 	for (int i = 0; i < transactionCount; i++) {
@@ -1687,15 +1704,22 @@ int findTransactionIndex(int transactionID) {
 	}
 	return -1;
 }
+
+// Display payment menu
+void paymentMenu() {
+	cout << "1. Make Payment" << endl;
+	cout << "2. Print Receipt" << endl;
+	cout << "3. Refund Payment" << endl;
+	cout << "4. Search Transaction" << endl;
+	cout << "5. Payment History" << endl;
+	cout << "6. Exit" << endl;
+}
 // Make payment
 void paymentProcess() {
 	string userID;
 	int userIndex = -1;
 	cout << "\n========== MAKE PAYMENT ==========\n";
 	// Always use the latest records from the User and Package modules.
-	loadUserFromFile();
-	loadPackageFromFile();
-	loadPaymentFromFile();
 
 	if (transactionCount >= MAX_TRANSACTIONS) {
 		cout << "[ERROR] Transaction storage is full.\n";
@@ -1979,17 +2003,9 @@ void displayPaymentHistory() {
 }
 // Main payment menu
 void payment() {
-	loadUserFromFile();
-	loadPackageFromFile();
-
-	loadPaymentFromFile();
 	int paymentChoice = 0;
 	do {
-		cout << "\n------------------------------------------------------------------\n";
-		cout << "|                                                                |\n";
-		cout << "|                          Payment Menu                          |\n";
-		cout << "|                                                                |\n";
-		cout << "------------------------------------------------------------------\n";
+		displayHeader("PAYMENT MENU");
 		paymentMenu();
 		paymentChoice = getMenuChoice(1, 6);
 		switch (paymentChoice) {
@@ -2016,3 +2032,4 @@ void payment() {
 		}
 	} while (paymentChoice != 6);
 }
+
