@@ -16,6 +16,14 @@ void payment();
 void loadPaymentFromFile();
 void savePaymentToFile();
 
+//data.txt Packagefile function (重复 package code）!!!
+void loadPackageFromFile();
+void savePackageToFile();
+
+//data.txt Userfile function
+void loadUserFromFile();
+void saveUserToFile();
+
 enum package_status {
 	Active,
 	Inactive
@@ -30,10 +38,10 @@ struct GymPackage {
 };
 
 struct GymUser {
-	int userID;
+	string userID;
 	string userName;
 	string phoneNum;
-	int packageID;
+	string userPackage;
 };
 
 struct PaymentTransaction {
@@ -45,6 +53,16 @@ struct PaymentTransaction {
 	string paymentMethod;
 	string status;
 };
+//User Array
+const int maxUsers = 50;//array maximum number user
+GymUser users[maxUsers];
+int userCount = 0;
+
+//Package (重复 package code）!!!
+const int maxPackages = 50; // Maximum array capacity
+GymPackage packages[maxPackages]; // Array storing all gym packages
+int packageCount = 0; // Count for total active packages
+
 //array maximum transaction
 const int MAX_TRANSACTIONS = 50;
 
@@ -76,16 +94,143 @@ void paymentMenu() {
 	cout << "5. Payment History" << endl;
 	cout << "6. Exit" << endl;
 }
+
+void clearInputBuffer() {
+	cin.clear();
+	cin.ignore(10000, '\n');
+}
+
+int getMenuChoice(int low, int high)
+{
+	int choice = 0;
+	bool valid = false;
+	while (!valid)
+	{
+		cout << "| Please enter your choice (" << low << "-" << high << "):        |";
+		cout << "\n==========================================\n";
+		cin >> choice;
+
+		if (choice >= low && choice <= high) {
+			valid = true;
+			cout << "Success";
+			clearInputBuffer();
+		}
+		else {
+			valid = false;
+			cout << "Please Enter Again" << endl;
+			clearInputBuffer();
+		}
+	}
+	return choice;
+}
+
+
+//(重复 package code）
+void loadPackageFromFile() {
+	ifstream inData("PackageData.txt");
+
+	if (!inData) {
+		packages[0] = { "1001", "BasicPackage", 29.99, 30, Active };
+		packages[1] = { "1002", "StandardPackage", 49.99, 60, Active };
+		packages[2] = { "1003", "PremiumPackage", 69.99, 90, Active };
+		packages[3] = { "1004", "StudentPackage", 19.99, 30, Active };
+		packageCount = 4;
+
+		savePackageToFile();
+		return;
+	}
+
+	packageCount = 0;
+	int statusInt;
+
+	while (packageCount < maxPackages && inData >> packages[packageCount].packageID) {
+		inData.ignore(10000, '\n');
+		getline(inData, packages[packageCount].packageName);
+		inData >> packages[packageCount].price;
+		inData >> packages[packageCount].durationDays;
+		inData >> statusInt;
+
+		packages[packageCount].packageStatus = (statusInt == 0) ? Active : Inactive;
+		packageCount++;
+	}
+
+	inData.close();
+}
+
+//(重复 package code）!!!
+void savePackageToFile() {
+	ofstream outData;
+	outData.open("PackageData.txt");
+
+	if (!outData) {
+		cout << "[ERROR] Error opening file ! " << endl;
+		return;
+	}
+
+	for (int i = 0; i < packageCount; i++) {
+		outData << packages[i].packageID << endl;
+		outData << packages[i].packageName << endl;
+		outData << packages[i].price << endl;
+		outData << packages[i].durationDays << endl;
+		outData << static_cast<int>(packages[i].packageStatus) << endl;
+	}
+
+	outData.close();
+}
+
+void loadUserFromFile() {
+	ifstream inData("UserData.txt");
+
+	if (!inData) {
+		users[0] = { "0001", "Tan", "0193257193", "1001" },
+			users[1] = { "0002", "Loh", "0138642947", "1001" },
+			users[2] = { "0003", "Ooi", "0163841946", "1004" },
+
+			userCount = 3;
+		saveUserToFile();
+		return;
+	}
+
+	userCount = 0;
+	while (userCount < maxUsers && inData >> users[userCount].userID) {
+		inData >> users[userCount].userName;
+		inData >> users[userCount].phoneNum;
+		inData >> users[userCount].userPackage;
+
+		userCount++;
+	}
+
+	inData.close();
+};
+
+void saveUserToFile() {
+	ofstream outData("UserData.txt");
+
+	if (!outData) {
+		cout << "[Error] Unable to open User data file" << endl;
+		return;
+	}
+	for (int i = 0; i < userCount; i++) {
+		outData << users[i].userID << endl;
+		outData << users[i].userName << endl;
+		outData << users[i].phoneNum << endl;
+		outData << users[i].userPackage << endl;
+	}
+
+	outData.close();
+}
+
+
 // Load payment records from PaymentData.txt
 void loadPaymentFromFile() {
 	ifstream inData("PaymentData.txt");
 	if (!inData) {
 		transactionCount = 0;
-		nextTransactionID = 1001;
+		nextTransactionID = 3001;
 		return;
 	}
 	transactionCount = 0;
-	nextTransactionID = 1001;
+	nextTransactionID = 3001;
 	while (transactionCount < MAX_TRANSACTIONS &&
 		inData >> transactions[transactionCount].transactionID) {
 		inData.ignore(10000, '\n');
@@ -95,7 +240,7 @@ void loadPaymentFromFile() {
 			!(inData >> transactions[transactionCount].amount)) {
 			cout << "[ERROR] Payment data file is incomplete or corrupted.\n";
 			transactionCount = 0;
-			nextTransactionID = 1001;
+			nextTransactionID = 3001;
 			return;
 		}
 		inData.ignore(10000, '\n');
@@ -143,9 +288,6 @@ void paymentProcess() {
 	int userIndex = -1;
 	cout << "\n========== MAKE PAYMENT ==========\n";
 	// Always use the latest records from the User and Package modules.
-	loadUserFromFile();
-	loadPackageFromFile();
-	loadPaymentFromFile();
 
 	if (transactionCount >= MAX_TRANSACTIONS) {
 		cout << "[ERROR] Transaction storage is full.\n";
@@ -182,7 +324,7 @@ void paymentProcess() {
 		cout << "[ERROR] Package not found.\n";
 		return;
 	}
-	if (packages[packageIndex].packageStatus == PackageInactive) {
+	if (packages[packageIndex].packageStatus == Inactive) {
 		cout << "[ERROR] This package is inactive.\n";
 		return;
 	}
@@ -429,8 +571,6 @@ void displayPaymentHistory() {
 }
 // Main payment menu
 void payment() {
-	loadUserFromFile();
-	loadPackageFromFile();
 
 	loadPaymentFromFile();
 	int paymentChoice = 0;
@@ -465,4 +605,13 @@ void payment() {
 			cout << "\nInvalid choice. Please enter 1 - 6.\n";
 		}
 	} while (paymentChoice != 6);
+}
+
+
+int main() {
+	loadUserFromFile();
+	loadPackageFromFile();
+	loadPaymentFromFile();
+    payment();
+    return 0;
 }
