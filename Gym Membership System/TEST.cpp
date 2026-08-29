@@ -369,25 +369,31 @@ void addUser() {
 
 	// Add userID
 	GymUser newUser;
+	clearInputBuffer();
+	
 	cout << "Enter UserID(first Num = 0): ";
 	while (true) {
-		cin >> newUser.userID;
-
-		if (newUser.userID[0] != '0') {
+		getline(cin, newUser.userID);
+	
+		if (newUser.userID.empty()) {
+			cout << "[ERROR] User ID cannot be empty!" << endl;
+			cout << "Please try again: ";
+		}
+		else if (newUser.userID[0] != '0') {
 			cout << "[ERROR] First Number start with (0):" << endl;
 			cout << "Please try Again: ";
 		}
 		else if (!isNumID(newUser.userID)) {
-			cout << "[ERROR] UserID must contain numbers only!" << endl;
+			cout << "[ERROR] User ID must contain numbers only!" << endl;
 			cout << "Please try Again: ";
 		}
 		else if (newUser.userID.length() != 4) {
-			cout << "[ERROR] UserID number should 4 :" << endl;
+			cout << "[ERROR] User ID number should 4 :" << endl;
 			cout << "Please try Again: ";
-
+	
 		}
 		else if (IsValidUserID(newUser.userID)) {
-			cout << "[ERROR] UserID already exist. " << endl;
+			cout << "[ERROR] User ID already exist. " << endl;
 			cout << "Please try Again: ";
 			clearInputBuffer();
 		}
@@ -395,12 +401,17 @@ void addUser() {
 			break;
 		}
 	}
-
+	
 	//Add userName
-	cout << "Enter Username (MAX 4 character): " << endl;
+	cout << "Enter Username (MAX 4 character): " ;
 	while (true) {
-		cin >> newUser.userName;
-		if (!isWordName(newUser.userName)) {
+		getline(cin,newUser.userName);
+	
+		if (newUser.userName.empty()) {
+			cout << "[ERROR] Username cannot be empty!" << endl;
+			cout << "Please try again: ";
+		}
+		else if (!isWordName(newUser.userName)) {
 			cout << "[ERROR] UserName must type (alphabet) " << endl;
 			cout << "Please try Again: ";
 		}
@@ -412,15 +423,18 @@ void addUser() {
 			break;
 		}
 	};
-
+	
 	//Add PhoneNumber
-	cout << "Enter PhoneNumber(MAX 11 character): " << endl;
-
+	cout << "Enter PhoneNumber(MAX 11 character): ";
+	
 	while (true) {
-		cin >> newUser.phoneNum;
-
-
-		if (newUser.phoneNum[0] != '0' || newUser.phoneNum[1] != '1') {
+		getline(cin, newUser.phoneNum);
+	
+		if (newUser.phoneNum.empty()) {
+			cout << "[ERROR] Phone Number cannot be empty!" << endl;
+			cout << "Please try again: ";
+		}
+		else if (newUser.phoneNum[0] != '0' || newUser.phoneNum[1] != '1') {
 			cout << "[ERROR] Not a phone number format" << endl;
 			cout << "Please try Again: ";
 		}
@@ -440,7 +454,7 @@ void addUser() {
 			break;
 		}
 	}
-
+	
 	//Add packageID
 	while (true) {
 		cout << "Enter package ID : ";
@@ -449,7 +463,7 @@ void addUser() {
 			users[userCount] = newUser;
 			userCount++;
 			saveUserToFile();
-
+	
 			cout << "\n========================================\n";
 			cout << "|        USER ADDED SUCCESSFULLY!      |\n";
 			cout << "========================================\n";
