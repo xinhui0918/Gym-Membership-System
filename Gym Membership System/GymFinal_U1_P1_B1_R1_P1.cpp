@@ -41,7 +41,7 @@ void modifyBooking();
 void searchBooking();
 void displayBooking();
 void booking();
-void saveBooking();
+void saveBookingToFile();
 void loadBookingFromFile();
 // REPORT MODULE 
 void ReportMenu();
