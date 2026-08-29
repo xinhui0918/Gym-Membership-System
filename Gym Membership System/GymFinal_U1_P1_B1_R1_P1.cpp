@@ -73,8 +73,9 @@ enum booking_status {
 string  status_to_string(booking_status status) {
 	return (status == BookingActive) ? "Active" : "Inactive";
 }
-string status_to_string(booking_status status);
-string statusToString(package_status status);
+
+string statusToString(package_status status) ;
+
 //Structure declaration
 //GymUser module	
 struct GymUser {
@@ -1004,7 +1005,7 @@ void package() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BOOKING MODULE
 
-void saveBookingFromFile() {
+void saveBookingToFile() {
 	ofstream outFile;
 	outFile.open("bookings.txt");
 
@@ -1120,7 +1121,7 @@ void createBooking() {
 	new_booking_id++;
 	bookingCount++;
 
-	saveBookingFromFile();
+	saveBookingToFile();
 }
 // cancel booking
 void cancelBooking() {
@@ -1174,7 +1175,7 @@ void cancelBooking() {
 	else {
 		cout << "Cancellation aborted." << endl;
 	}
-	saveBookingFromFile();
+	saveBookingToFile();
 }
 // modify booking
 void modifyBooking() {
@@ -1235,7 +1236,7 @@ void modifyBooking() {
 	bookings[index].date = timeSlots[newSlot - 1].startTime + "-" + timeSlots[newSlot - 1].endTime;
 
 	cout << "Booking modified successfully. New time slot: " << bookings[index].date << endl;
-	saveBookingFromFile();
+	saveBookingToFile();
 }
 //search booking
 void searchBooking() {
