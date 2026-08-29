@@ -726,8 +726,8 @@ void savePackageToFile() {
 
 	outData.close();
 }
-// Validation ID
-bool isDuplicateID(string id) {
+// Validation Duplicate ID
+bool isDuplicateID (string id) {
 	for (int i = 0; i < packageCount; i++) {
 		if (packages[i].packageID == id) {
 			return true;
@@ -735,6 +735,33 @@ bool isDuplicateID(string id) {
 	}
 	return false;
 }
+
+// Validation Package ID must input All Numbers
+bool isNumID (string packageID) {
+	if (packageID.empty()) {
+		return false;
+	}
+	for (int i = 0; i < packageID.length(); i++) {
+		if (!isdigit(packageID[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+// Validation Package Name must input All Alphabets
+bool isWordName (string packageName) {
+	if (packageName.empty()) {
+		return false;
+	}
+	for (int i = 0; i < packageName.length(); i++) {
+		if (!isalpha(packageName[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
 // Add package
 void addPackage() {
 	displayHeader("ADD NEW PACKAGE");
@@ -744,11 +771,15 @@ void addPackage() {
 	}
 	GymPackage newPackage;
 
-	// Validation Duplicate ID
+	// Validation Package ID
 	while (true) {
 		cout << "Enter package ID : ";
 		cin >> newPackage.packageID;
-		if (isDuplicateID(newPackage.packageID)) {
+
+		if (!isNumID(newPackage.packageID)) {
+			cout << "[ERROR] Invalid Package ID ! Must input numbers only." << endl;
+		}
+		else if (isDuplicateID(newPackage.packageID)) {
 			cout << "[ERROR] Duplicate Package ID ! Please Enter a unique ID." << endl;
 		}
 		else {
@@ -758,8 +789,19 @@ void addPackage() {
 
 	clearInputBuffer();
 
-	cout << "Enter package name : ";
-	cin >> newPackage.packageName;
+	// Validation Package Name
+	while (true) {
+		cout << "Enter package name : ";
+		getline (cin, newPackage.packageName);
+
+		if (!isWordName(newPackage.packageName)) {
+			cout << "[ERROR] Invalid Package Name ! Must input alphabets only." << endl;
+		}
+		else {
+			break;
+		}
+	}
+
 
 	// Validation price cant be negative
 	do {
