@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <cctype>
 #include <string>
 #include <fstream>
 
@@ -7,56 +8,44 @@ using namespace std;
 
 
 enum booking_status {
-	Active,
-	Inactive
+	BookingActive,
+	BookingInactive
 };
 
-string  status_to_string(booking_status status) {
-	return (status == Active) ? "Active" : "Inactive";
+string status_to_string(booking_status status) {
+	return (status == BookingActive) ? "Booked" : "Available";
 }
-
-
-
 struct Gymbooking {
 	int bookingID;
 	string userName;
-	string userID;
 	string date;
 	booking_status bookingStatus;
 
 };
 
-struct timeSlot {
-	string slotID;
-	string startTime;
-	string endTime;
-	bool isBooked;
-};
-
 //set the time slot and array it
 const int maxSlot = 10;
-timeSlot timeSlots[maxSlot] = {
-	{"1", "08:00", "09:00", false},
-	{"2", "09:00", "10:00", false},
-	{"3", "10:00", "11:00", false},
-	{"4", "11:00", "12:00", false},
-	{"5", "12:00", "13:00", false},
-	{"6", "13:00", "14:00", false},
-	{"7", "14:00", "15:00", false},
-	{"8", "15:00", "16:00", false},
-	{"9", "16:00", "17:00", false},
-	{"10", "17:00", "18:00", false}
+string timeSlots[maxSlot][2] = {
+	{"08:00","09:00" },
+	{"09:00","10:00" },
+	{"10:00","11:00" },
+	{"11:00","12:00" },
+	{"12:00","13:00" },
+	{"13:00","14:00" },
+	{"14:00","15:00" },
+	{"15:00","16:00" },
+	{"16:00","17:00" },
+	{"17:00","18:00" },
 
 };
+
+bool isBooked[maxSlot] = { false,false, false, false, false, false, false, false, false, false };
 
 //set the max of the booking
 const int maxBooking = 50;
 Gymbooking bookings[maxBooking];
 int bookingCount = 0;
 int new_booking_id = 2001;
-
-
-
 
 // Function prototypes
 void displayHeader(string title);
@@ -131,8 +120,8 @@ void saveBookingFromFile() {
 	}
 
 	for (int i = 0; i < bookingCount; i++) {
-		outFile << bookings[i].bookingID << " "<< bookings[i].userName << " "
-			<< bookings[i].date << " "<< bookings[i].bookingStatus << "\n";
+		outFile << bookings[i].bookingID << " " << bookings[i].userName << " "
+			<< bookings[i].date << " " << bookings[i].bookingStatus << "\n";
 	}
 
 	outFile.close();
@@ -140,10 +129,10 @@ void saveBookingFromFile() {
 
 void loadBookingFromFile() {
 	ifstream inFile("bookings.txt");
-	
+
 	// no file, skipp
 	if (!inFile) {
-		return;   
+		return;
 	}
 
 	int id;
@@ -168,9 +157,9 @@ void loadBookingFromFile() {
 			max_id_seen = b.bookingID;
 		}
 		for (int i = 0; i < maxSlot; i++) {
-			string range = timeSlots[i].startTime + " - " + timeSlots[i].endTime;
+			string range = timeSlots[i][0] + "-" + timeSlots[i][1];
 			if (range == b.date) {
-				timeSlots[i].isBooked = true;
+				isBooked[i] = true;
 				break;
 			}
 		}
@@ -182,11 +171,14 @@ void loadBookingFromFile() {
 }
 
 
-
-
-// create booking function
-// verify user(id and name),show time slot （let user choice)
-// display result(success booking/ not >> retry again)
+void bookingMenu() {
+	cout << "1. Create Booking" << endl;
+	cout << "2. Cancel Booking" << endl;
+	cout << "3. Modify Booking" << endl;
+	cout << "4. Search Booking" << endl;
+	cout << "5. Display Booking" << endl;
+	cout << "6. Exit " << endl;
+}
 void createBooking() {
 	displayHeader("Add a booking.");
 
@@ -198,44 +190,67 @@ void createBooking() {
 	}
 
 	string userName;
+	bool isValid = false;
 	cout << "----------------------------------" << endl;
-	cout << "Please enter your username." << endl;
-	cin >> userName;
-	clearInputBuffer();
+	do
+	{
+
+		cout << "Please enter your username." << endl;
+		cin >> userName;
+		clearInputBuffer();
+
+		isValid = true;
+		if (userName.empty())
+		{
+			isValid = false;
+		}
+		for (int i = 0; i < userName.length(); i++) {
+			if (!isalpha(userName[i])) {
+				isValid = false;
+			}
+		}
+
+		if (!isValid) {
+			cout << "Username must contain letters only." << endl;
+		}
+
+	} while (!isValid);
+
+
 
 	cout << "Please select the time slot:\n";
-	cout << "\n The avaible time slot : \n";
+	cout << "\n The available time slot : \n";
+	cout << left << setw(4) << "No." << setw(8) << "Start" << setw(4) << "" << setw(8) << "End" << setw(10) << "Status" << endl;
 	for (int i = 0; i < maxSlot; i++) {
-		cout << left << timeSlots[i].slotID << setw(6) << ": " << setw(5) << timeSlots[i].startTime << setw(6) << " - " <<
-		setw(6) << timeSlots[i].endTime << setw(6) << (timeSlots[i].isBooked ? "Booked" : "Available")  << endl;
+		cout << left << setw(4) << (i + 1) << setw(8) << timeSlots[i][0] << setw(4) << " - " << setw(8) << timeSlots[i][1] << setw(10) << (isBooked[i] ? "Booked" : "Available") << endl;
 	}
 
 	int slot_ID = getMenuChoice(1, maxSlot);
 
 	//check the time slot
-	if(timeSlots[slot_ID - 1].isBooked){
-		cout << "Sorry, the time slot has already been booked. Please try agian."
+	if (isBooked[slot_ID - 1]) {
+		cout << "Sorry, the time slot has already been booked. Please try again."
 			<< endl;
 		return;
 	}
 
-	timeSlots[slot_ID - 1].isBooked = true;
+	isBooked[slot_ID - 1] = true;
 
 	// acess the data 2 global
 	bookings[bookingCount].bookingID = new_booking_id;
 	bookings[bookingCount].userName = userName;
-	bookings[bookingCount].date = timeSlots[slot_ID - 1].startTime + "-" + timeSlots[slot_ID - 1].endTime;
-	bookings[bookingCount].bookingStatus = Active;
-	
-	cout << "Your booking is confirmed! The booking ID is " << new_booking_id << "\nYou have booked: " 
-		<< timeSlots[slot_ID - 1].startTime<< " - " << timeSlots[slot_ID - 1].endTime << endl;
-	
+	bookings[bookingCount].date = timeSlots[slot_ID - 1][0] + "-" + timeSlots[slot_ID - 1][1];
+	bookings[bookingCount].bookingStatus = BookingActive;
+
+	cout << "Your booking is confirmed! The booking ID is " << new_booking_id << "\nYou have booked: "
+		<< timeSlots[slot_ID - 1][0] << " - " << timeSlots[slot_ID - 1][1] << endl;
+
 	new_booking_id++;
 	bookingCount++;
-		
+
 	saveBookingFromFile();
 
-		
+
 }
 
 // cancel booking
@@ -247,7 +262,7 @@ void cancelBooking() {
 		return;
 	}
 
-	
+
 	int searchID;
 	cout << "Please enter your booking ID: ";
 	cin >> searchID;
@@ -269,14 +284,14 @@ void cancelBooking() {
 
 	cout << "Found booking: " << bookings[index].userName << ", " << bookings[index].date << endl;
 	cout << "1. Confirm cancellation\n2. Go back\n";
-	
+
 	int confirm = getMenuChoice(1, 2);
 
 	if (confirm == 1) {
 		for (int i = 0; i < maxSlot; i++) {
-			string range = timeSlots[i].startTime + "-" + timeSlots[i].endTime;
+			string range = timeSlots[i][0] + "-" + timeSlots[i][1];
 			if (range == bookings[index].date) {
-				timeSlots[i].isBooked = false;
+				isBooked[i] = false;
 				break;
 			}
 		}
@@ -302,7 +317,7 @@ void modifyBooking() {
 		return;
 	}
 
-	
+
 	int searchID;
 	cout << "Please enter your booking ID: ";
 	cin >> searchID;
@@ -327,33 +342,33 @@ void modifyBooking() {
 	cout << "\nAvailable time slots:\n";
 	cout << left << setw(8) << "No" << setw(10) << "Start" << setw(10) << "End" << "Status" << endl;
 	for (int i = 0; i < maxSlot; i++) {
-		cout << left << setw(8) << timeSlots[i].slotID
-			<< setw(10) << timeSlots[i].startTime
-			<< setw(10) << timeSlots[i].endTime
-			<< (timeSlots[i].isBooked ? "Booked" : "Available") << endl;
+		cout << left << setw(8) << (i + 1)
+			<< setw(10) << timeSlots[i][0]
+			<< setw(10) << timeSlots[i][1]
+			<< (isBooked[i] ? "Booked" : "Available") << endl;
 	}
 
 	int newSlot = getMenuChoice(1, maxSlot);
 
-	if (timeSlots[newSlot - 1].isBooked) {
+	if (isBooked[newSlot - 1]) {
 		cout << "That slot is already booked. Modification cancelled." << endl;
 		return;
 	}
-	// ensure the cencelled booking in status available
+	// ensure the cancelled booking status is available
 	for (int i = 0; i < maxSlot; i++) {
-		string range = timeSlots[i].startTime + "-" + timeSlots[i].endTime;
+		string range = timeSlots[i][0] + "-" + timeSlots[i][1];
 		if (range == bookings[index].date) {
-			timeSlots[i].isBooked = false;
+			isBooked[i] = false;
 			break;
 		}
 	}
 
-	timeSlots[newSlot - 1].isBooked = true;
-	bookings[index].date = timeSlots[newSlot - 1].startTime + "-" + timeSlots[newSlot - 1].endTime;
+	isBooked[newSlot - 1] = true;
+	bookings[index].date = timeSlots[newSlot - 1][0] + "-" + timeSlots[newSlot - 1][1];
 
-cout << "Booking modified successfully. New time slot: " << bookings[index].date << endl;
+	cout << "Booking modified successfully. New time slot: " << bookings[index].date << endl;
 
-saveBookingFromFile();
+	saveBookingFromFile();
 
 }
 
@@ -361,29 +376,31 @@ saveBookingFromFile();
 //search booking
 void searchBooking() {
 	displayHeader("Search booking");
-	
+
 	int searchID;
 	cout << "Please enter your booking ID:\n";
 	cin >> searchID;
 	clearInputBuffer();
 
+
 	bool found = false;
-	cout << left << setw(6) << "No." << setw(15) << "Username" << setw(15) <<
+	cout << endl << left << setw(15) << "Booking ID" << setw(15) << "Username" << setw(15) <<
 		"Time Slot" << "Status" << endl;
-	
+
 	// check booking and exit or not
 	for (int i = 0; i < bookingCount;i++) {
 		if (bookings[i].bookingID == searchID) {
-			cout << left << setw(6) << (i + 1) << setw(15) << bookings[i].userName
+			cout << left << setw(15) << bookings[i].bookingID << setw
+			(15) << bookings[i].userName
 				<< setw(15) << bookings[i].date << status_to_string(bookings[i].bookingStatus) << endl;
 			found = true;
 		}
 	}
-		if (!found) {
-			cout << "No booking found under that user ID." << endl;
-			return;
-		}
+	if (!found) {
+		cout << "No booking found under that booking ID." << endl;
+		return;
 	}
+}
 
 
 //display booking
@@ -393,17 +410,18 @@ void displayBooking() {
 		cout << "Your booking is not found." << endl;
 		return;
 	}
-	cout << left << setw(6) << "No." << setw(15) << "Username" << setw(15)
-		<< "Time Slot" << "Status" << endl;
+
+	cout << left << setw(6) << "No." << setw(15) << "Booking ID" << setw(10) << "Username" << setw(15)
+		<< "Time Slot" << setw(15) << "Status" << endl;
 	// display all booking
-		int i = 0;
-		while(i < bookingCount) {
-			cout << left << setw(6) << (i + 1) << setw(15) << bookings[i].userName
-				<< setw(15) << bookings[i].date
-				<< status_to_string(bookings[i].bookingStatus) << endl;
-			i++;
-		}
-	
+	int i = 0;
+	while (i < bookingCount) {
+		cout << left << setw(6) << (i + 1) << setw(15) << bookings[i].bookingID << setw(10) << bookings[i].userName
+			<< setw(15) << bookings[i].date
+			<< status_to_string(bookings[i].bookingStatus) << endl;
+		i++;
+	}
+
 }
 
 
@@ -442,7 +460,6 @@ void booking() {
 		}
 	} while (bookingChoice != 6);
 }
-
 
 int main() {
 	loadBookingFromFile();
