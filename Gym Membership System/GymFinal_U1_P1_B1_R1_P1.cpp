@@ -45,11 +45,10 @@ void saveBooking();
 void loadBookingFromFile();
 // REPORT MODULE 
 void ReportMenu();
-void ReportUser(GymUser users[], GymPackage packages[], int userCount, int packageCount);
+void ReportUser();
 void ReportSorting(GymUser users[], GymPackage packages[], int userCount, int packageCount);
-void ReportRevenue(GymUser users[], GymPackage packages[], int userCount, int packageCount);
-void ReportStatistics(GymUser users[], GymPackage packages[], int userCount, int packageCount);
-void ReportAnalysis(GymUser users[], GymPackage packages[], int userCount, int packageCount);
+void ReportRevenue();
+void ReportStatistics();
 void ReportPrintuser(GymUser users[], GymPackage packages[], int userCount, int packageCount);
 // PAYMENT MODULE /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int findTransactionIndex(int transactionID);
@@ -282,12 +281,12 @@ void saveUserToFile() {
 }
 
 void promptUserMenu() {
-	cout << "| 1. Add User                            |" << endl;
-	cout << "| 2. Update User                         |" << endl;
-	cout << "| 3. Delete User                         |" << endl;
-	cout << "| 4. Search Users                        |" << endl;
-	cout << "| 5. Display Users                       |" << endl;
-	cout << "| 6. Exit                                |" << endl;
+	cout << " 1. Add User                            " << endl;
+	cout << " 2. Update User                         " << endl;
+	cout << " 3. Delete User                         " << endl;
+	cout << " 4. Search Users                        " << endl;
+	cout << " 5. Display Users                       " << endl;
+	cout << " 6. Exit                                " << endl;
 }
 
 //user valid ID exist
@@ -586,14 +585,16 @@ void deleteUser() {
 
 	string userid;
 	string check;
-	cout << "Enter Existing UserID ";
+
+	cout << "Enter Existing UserID : ";
 	cin >> userid;
+
 	cout << "\nPlease Double confirm\n";
 	cout << "Enter 'YES' OR 'NO' : ";
 	cin >> check;
 
 	if (check != "YES") {
-		cout << "Cancel the delete statement";
+		cout << "Cancel the delete statement" << endl;
 		return;
 	}
 
@@ -630,7 +631,7 @@ void searchUser() {
 	bool found = false;
 	for (int i = 0; i < userCount; i++) {
 		if (users[i].userID == userid) {
-			cout << "[SUCCESS] Found UserID!" << endl;
+			cout << "[SUCCESS] Found UserID!" << endl << endl;
 			cout << "UserID: " << users[i].userID << endl;
 			cout << "Username: " << users[i].userName << endl;
 			cout << "Phone Number: " << users[i].phoneNum << endl;
@@ -736,7 +737,33 @@ bool isDuplicateID(string id) {
 	}
 	return false;
 }
-// Add package
+
+// Validation Package ID must input All Numbers
+bool isPackageNumID(string packageID) {
+	if (packageID.empty()) {
+		return false;
+	}
+	for (int i = 0; i < packageID.length(); i++) {
+		if (!isdigit(packageID[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+// Validation Package Name must input All Alphabets
+bool isPackageWordName(string packageName) {
+	if (packageName.empty()) {
+		return false;
+	}
+	for (int i = 0; i < packageName.length(); i++) {
+		if (!isalpha(packageName[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
 void addPackage() {
 	displayHeader("ADD NEW PACKAGE");
 	if (packageCount >= maxPackages) {
@@ -745,11 +772,15 @@ void addPackage() {
 	}
 	GymPackage newPackage;
 
-	// Validation Duplicate ID
+	// Validation Package ID
 	while (true) {
 		cout << "Enter package ID : ";
 		cin >> newPackage.packageID;
-		if (isDuplicateID(newPackage.packageID)) {
+
+		if (!isPackageNumID(newPackage.packageID)) {
+			cout << "[ERROR] Invalid Package ID ! Must input numbers only." << endl;
+		}
+		else if (isDuplicateID(newPackage.packageID)) {
 			cout << "[ERROR] Duplicate Package ID ! Please Enter a unique ID." << endl;
 		}
 		else {
@@ -759,8 +790,19 @@ void addPackage() {
 
 	clearInputBuffer();
 
-	cout << "Enter package name : ";
-	cin >> newPackage.packageName;
+	// Validation Package Name
+	while (true) {
+		cout << "Enter package name : ";
+		getline(cin, newPackage.packageName);
+
+		if (!isPackageWordName(newPackage.packageName)) {
+			cout << "[ERROR] Invalid Package Name ! Must input alphabets only." << endl;
+		}
+		else {
+			break;
+		}
+	}
+
 
 	// Validation price cant be negative
 	do {
@@ -855,7 +897,7 @@ void updatePackage() {
 			return;
 		}
 	}
-	cout << "[ERROR] Package ID" << id << "Not Found." << endl;
+	cout << "[ERROR] Package ID: " << id << "Not Found." << endl;
 }
 // Delete Package
 void deletePackage() {
@@ -863,7 +905,12 @@ void deletePackage() {
 	string id;
 	cout << "Enter Package ID to Delete : ";
 	cin >> id;
-
+	for (int i = 0; i < userCount; i++) { 
+		if (users[i].userPackage == id) {
+			cout << "[ERROR] Package is currently assigned to a user.\n"; // <---------------------------------------
+			return;
+		}
+	}
 	for (int i = 0; i < packageCount; i++) {
 		if (packages[i].packageID == id) {
 			for (int j = i; j < packageCount - 1; j++) {
@@ -1070,7 +1117,7 @@ void createBooking() {
 	// acess the data 2 global
 	bookings[bookingCount].bookingID = new_booking_id;
 	bookings[bookingCount].userName = userName;
-	bookings[bookingCount].date = timeSlots[slot_ID - 1].startTime + "-" + timeSlots[slot_ID - 1].endTime;
+	bookings[bookingCount].date = timeSlots[slot_ID - 1].startTime + " - " + timeSlots[slot_ID - 1].endTime;
 	bookings[bookingCount].bookingStatus = BookingActive;
 
 	cout << "Your booking is confirmed! The booking ID is " << new_booking_id << "\nYou have booked: "
@@ -1279,6 +1326,41 @@ void booking() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // REPORT MODULE
 void ReportMenu() {
+	int choice;
+	system("cls");
+	do {
+		displayHeader("REPORT MENU");
+		cout << "1. User Report" << endl;
+		cout << "2. Revenue Report" << endl;
+		cout << "3. Statistics Report" << endl;
+		cout << "4. Exit" << endl;
+		cout << "Enter your choice (1-4): ";
+		cin >> choice;
+		if (cin.fail()) {
+			cin.clear();
+			cin.ignore(10000, '\n');
+		}
+		switch (choice) {
+		case 1:
+			ReportUser();
+			break;
+		case 2:
+			ReportRevenue();
+			break;
+		case 3:
+			ReportStatistics();
+			break;
+		case 4:
+			break;
+		default:
+			system("cls");
+			cout << '\a' << "||Invalid choice. Please select between 1 and 5.||" << endl;
+		}
+	} while (choice != 4);
+	system("cls");
+}
+void ReportUser() {
+	system("cls");
 	ifstream userFile("UserData.txt");
 	ifstream packageFile("PackageData.txt");
 	if (!userFile || !packageFile) {
@@ -1304,55 +1386,18 @@ void ReportMenu() {
 		users[userCount] = tempuser;
 	}
 	packageFile.close();
-	int choice;
-	system("cls");
-	do {
-		displayHeader("REPORT MENU");
-		cout << "1. User Report" << endl;
-		cout << "2. User Report Sorting" << endl;
-		cout << "3. Revenue Report" << endl;
-		cout << "4. Statistics Report" << endl;
-		cout << "5. Analysis Report" << endl;
-		cout << "6. Exit" << endl;
-		cout << "Enter your choice (1-6): ";
-		cin >> choice;
-		if (cin.fail()) {
-			cin.clear();
-			cin.ignore(10000, '\n');
-		}
-		switch (choice) {
-		case 1:
-			ReportUser(users, packages, userCount, packageCount);
-			break;
-		case 2:
-			ReportSorting(users, packages, userCount, packageCount);
-			break;
-		case 3:
-			ReportRevenue(users, packages, userCount, packageCount);
-			break;
-		case 4:
-			ReportStatistics(users, packages, userCount, packageCount);
-			break;
-		case 5:
-			ReportAnalysis(users, packages, userCount, packageCount);
-			break;
-		case 6:
-			break;
-		default:
-			system("cls");
-			cout << '\a' << "||Invalid choice. Please select between 1 and 5.||" << endl;
-		}
-	} while (choice != 6);
-}
-void ReportUser(GymUser users[], GymPackage packages[], int userCount, int packageCount) {
-	system("cls");
 	ReportPrintuser(users, packages, userCount, packageCount);
-	cout << "\nPress any key to return to the report menu" << endl;
-	system("cls");
-	system("pause");
+	string choicedirection;
+	displayHeader("Press 1 to sort the report or any other key to return to the report menu ");
+	cout << "\nEnter your choice: ";
+	cin >> choicedirection;
+	if (choicedirection == "1") {
+		system("cls");
+		ReportSorting(users, packages, userCount, packageCount);
+	}
+	else system("cls");
 }
 void ReportSorting(GymUser users[], GymPackage packages[], int userCount, int packageCount) {
-	system("cls");
 	int sortingChoice;
 	string repeatornot;
 	do {
@@ -1405,8 +1450,34 @@ void ReportSorting(GymUser users[], GymPackage packages[], int userCount, int pa
 	}
 	system("cls");
 }
-void ReportRevenue(GymUser users[], GymPackage packages[], int userCount, int packageCount) {
+void ReportRevenue() {
 	system("cls");
+	ifstream userFile("UserData.txt");
+	ifstream packageFile("PackageData.txt");
+	if (!userFile || !packageFile) {
+		cout << '\a' << "||Error opening files!||" << endl;
+		exit(1);
+	}
+	GymPackage temppackage; // load all package data first to prepare
+	int tempholdint;
+	for (packageCount = 0; packageCount < maxPackages; packageCount++) {
+		packageFile >> temppackage.packageID >> temppackage.packageName >> temppackage.price >> temppackage.durationDays >> tempholdint;
+		temppackage.packageStatus = static_cast<package_status>(tempholdint);
+		if (packageFile.fail()) {
+			break;
+		}
+		packages[packageCount] = temppackage;
+	}
+	packageFile.close();
+	GymUser tempuser; // load all user data first to prepare
+	for (userCount = 0; userCount < maxUsers; userCount++) {
+		userFile >> tempuser.userID >> tempuser.userName >> tempuser.phoneNum >> tempuser.userPackage;
+		if (userFile.fail()) {
+			break;
+		}
+		users[userCount] = tempuser;
+	}
+	userFile.close();
 	displayHeader("REVENUE REPORT");
 	cout << left << setw(20) << "Package ID"
 		<< setw(20) << "Package Name"
@@ -1444,8 +1515,34 @@ void ReportRevenue(GymUser users[], GymPackage packages[], int userCount, int pa
 	system("pause");
 	system("cls");
 }
-void ReportStatistics(GymUser users[], GymPackage packages[], int userCount, int packageCount) {
+void ReportStatistics() {
 	system("cls");
+	ifstream userFile("UserData.txt"); // CHANGE ACCORDING THE FILE NAME 
+	ifstream packageFile("PackageData.txt"); // CHANGE ACCORDING THE FILE NAME
+	if (!userFile || !packageFile) {
+		cout << '\a' << "||Error opening files!||" << endl;
+		exit(1);
+	}
+	GymPackage temppackage; // load all package data first to prepare
+	int tempholdint;
+	for (packageCount = 0; packageCount < maxPackages; packageCount++) {
+		packageFile >> temppackage.packageID >> temppackage.packageName >> temppackage.price >> temppackage.durationDays >> tempholdint;
+		temppackage.packageStatus = static_cast<package_status>(tempholdint);
+		if (packageFile.fail()) {
+			break;
+		}
+		packages[packageCount] = temppackage;
+	}
+	packageFile.close();
+	GymUser tempuser; // load all user data first to prepare
+	for (userCount = 0; userCount < maxUsers; userCount++) {
+		userFile >> tempuser.userID >> tempuser.userName >> tempuser.phoneNum >> tempuser.userPackage;
+		if (userFile.fail()) {
+			break;
+		}
+		users[userCount] = tempuser;
+	}
+	userFile.close();
 	displayHeader("STATISTICS REPORT");
 	cout << left << setw(40) << "Package Name"
 		<< setw(20) << "Number of Users"
@@ -1479,68 +1576,6 @@ void ReportStatistics(GymUser users[], GymPackage packages[], int userCount, int
 	cout << "\nTotal Number of Packages: " << tempcountpackages << endl;
 	cout << "Total Number of Users: " << userCount << endl;
 	cout << "\nPress any key to return to the report menu" << endl;
-	system("pause");
-	system("cls");
-}
-void ReportAnalysis(GymUser users[], GymPackage packages[], int userCount, int packageCount) {
-	system("cls");
-	displayHeader("ANALYSIS REPORT");
-	cout << left << setw(40) << "Most sales of Package"
-		<< setw(20) << "Number of Users"
-		<< setw(20) << "Revenue (RM)"
-		<< setw(20) << "Percentage of Total Revenue" << endl;
-	for (int i = 0; i < 120; i++) {
-		cout << '-';
-	}
-	cout << endl;
-
-	if (packageCount <= 0) {
-		cout << "No packages available." << endl << endl;
-		system("pause");
-		system("cls");
-		return;
-	}
-	// arrays for counts and revenue
-	int sales[maxPackages] = { 0 };
-	double revenue[maxPackages] = { 0.0 };
-	double totalRevenue = 0.0;
-
-	for (int i = 0; i < userCount; i++) {
-		for (int j = 0; j < packageCount; j++) {
-			if (users[i].userPackage == packages[j].packageID) {
-				sales[j]++;
-				revenue[j] += packages[j].price;
-				totalRevenue += packages[j].price;
-				break;
-			}
-		}
-	}
-	// find maximum sales value
-	int maxSales = 0;
-	for (int i = 0; i < packageCount; ++i) {
-		if (sales[i] > maxSales)
-			maxSales = sales[i];
-	}
-
-	if (maxSales == 0) {
-		cout << "No package sales recorded." << endl << endl;
-		system("pause");
-		system("cls");
-		return;
-	}
-
-	double percentage;
-	// print	
-	for (int i = 0; i < packageCount; ++i) {
-		if (sales[i] == maxSales) {
-			percentage = (totalRevenue > 0.0) ? (revenue[i] / totalRevenue * 100.0) : 0.0;
-			cout << left << setw(40) << packages[i].packageName
-				<< setw(20) << sales[i]
-				<< setw(20) << fixed << setprecision(2) << revenue[i]
-				<< setw(20) << fixed << setprecision(2) << percentage << "%" << endl;
-		}
-	}
-	cout << endl;
 	system("pause");
 	system("cls");
 }
