@@ -1493,10 +1493,6 @@ void ReportStatistics(GymUser users[], GymPackage packages[], int userCount, int
 		if (package_status::PackageActive == packages[i].packageStatus) {
 			cout << left << setw(40) << packages[i].packageName
 				<< setw(20) << numberofUsers
-				if (userCount == 0) { 
-				cout << "No users yet"; 
-				return; 
-			}
 				<< setw(20) << fixed << setprecision(2) << numberofUsers * 100.0 / userCount << "%" << endl;
 			tempcountpackages++;
 		}
