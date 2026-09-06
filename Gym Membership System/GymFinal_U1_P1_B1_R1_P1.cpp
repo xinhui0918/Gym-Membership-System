@@ -976,7 +976,7 @@ void package() {
 	loadPackageFromFile();
 	int packageChoice = 0;
 	do {
-		displayHeader("GYM MEMBERSHIP SYSTEM");
+		displayHeader("PACKAGE MANAGEMENT MENU");
 		packageMenu();
 		packageChoice = getMenuChoice(1, 6);
 
@@ -998,7 +998,7 @@ void package() {
 			displayAllPackages();
 			break;
 		case 6:
-			cout << "\nExiting the menu. Thank You !\n";
+			cout << "\nExiting the package menu. Thank You !\n";
 			return;
 			break;
 		default:
