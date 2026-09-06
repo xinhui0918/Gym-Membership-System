@@ -198,7 +198,7 @@ void MainMenu() {
 	int choice;
 	system("cls");
 	do {
-		displayHeader("MAIN MENU");
+		displayHeader("GYM MEMBERSHIP SYSTEM MAIN MENU");
 		cout << "1. User Management Menu" << endl;
 		cout << "2. Package Management Menu" << endl;
 		cout << "3. Booking Menu" << endl;
