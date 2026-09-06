@@ -205,7 +205,7 @@ void MainMenu() {
 	int choice;
 	system("cls");
 	do {
-		displayHeader("MAIN MENU");
+		displayHeader("GYM MEMBERSHIP SYSTEM MAIN MENU");
 		cout << "1. User Management Menu" << endl;
 		cout << "2. Package Management Menu" << endl;
 		cout << "3. Booking Menu" << endl;
@@ -936,7 +936,6 @@ void package() {
 	int packageChoice = 0;
 	do {
 		displayHeader("PACKAGE MANAGEMENT MENU");
-		cout << "--------------------------- Package Menu ----------------------------\n";
 		packageMenu();
 		packageChoice = getMenuChoice(1, 6);
 
@@ -958,7 +957,7 @@ void package() {
 			displayAllPackages();
 			break;
 		case 6:
-			cout << "\nExiting the package menu. ThankYou !\n";
+			cout << "\nExiting the package menu. Thank You !\n";
 			return;
 			break;
 		default:
