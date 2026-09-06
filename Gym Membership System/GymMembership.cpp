@@ -238,7 +238,7 @@ void MainMenu() {
 			break;
 		default:
 			system("cls");
-			cout << '\a' << "||Invalid choice. Please select between 1 and 5.||" << endl;
+			cout << '\a' << "||Invalid choice. Please select between 1 and 6.||" << endl;
 		}
 	} while (choice != 6);
 }
@@ -1379,7 +1379,7 @@ void ReportMenu() {
 			break;
 		default:
 			system("cls");
-			cout << '\a' << "||Invalid choice. Please select between 1 and 5.||" << endl;
+			cout << '\a' << "||Invalid choice. Please select between 1 and 6.||" << endl;
 		}
 	} while (choice != 6);
 	system("cls");
@@ -1506,6 +1506,10 @@ void ReportStatistics(GymUser users[], GymPackage packages[], int userCount, int
 		if (package_status::PackageActive == packages[i].packageStatus) {
 			cout << left << setw(40) << packages[i].packageName
 				<< setw(20) << numberofUsers
+				if (userCount == 0) { 
+				cout << "No users yet"; 
+				return; 
+			}
 				<< setw(20) << fixed << setprecision(2) << numberofUsers * 100.0 / userCount << "%" << endl;
 			tempcountpackages++;
 		}
