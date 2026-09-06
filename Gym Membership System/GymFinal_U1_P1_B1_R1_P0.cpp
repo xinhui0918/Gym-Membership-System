@@ -160,7 +160,7 @@ int getMenuChoice(int low, int high) {
 			valid = true;
 		}
 		else {
-			cout << " Invalid Input ! Try again." << endl;
+			cout << " Invalid Input ! Please enter 1-6" << endl;
 			clearInputBuffer();
 		}
 	}
@@ -204,7 +204,7 @@ void MainMenu() {
 			break;
 		default:
 			system("cls");
-			cout << '\a' << "||Invalid choice. Please select between 1 and 5.||" << endl;
+			cout << '\a' << "Invalid choice. Please select 1-6." << endl;
 		}
 	} while (choice != 6);
 }
@@ -254,12 +254,12 @@ void saveUserToFile() {
 }
 
 void promptUserMenu() {
-	cout << "| 1. Add User                            |" << endl;
-	cout << "| 2. Update User                         |" << endl;
-	cout << "| 3. Delete User                         |" << endl;
-	cout << "| 4. Search Users                        |" << endl;
-	cout << "| 5. Display Users                       |" << endl;
-	cout << "| 6. Exit                                |" << endl;
+	cout << " 1. Add User                            " << endl;
+	cout << " 2. Update User                         " << endl;
+	cout << " 3. Delete User                         " << endl;
+	cout << " 4. Search Users                        " << endl;
+	cout << " 5. Display Users                       " << endl;
+	cout << " 6. Exit                                " << endl;
 }
 
 //user valid ID exist
@@ -282,7 +282,7 @@ bool IsValidPhoneNum(string phoneNum) {
 	return false;
 }
 
-//just approve the number
+//just approve the number only for user ID
 bool isNumID(string userID) {
 	if (userID.empty()) {
 		return false;
@@ -295,7 +295,7 @@ bool isNumID(string userID) {
 	return true;
 }
 
-//just approve the alphabet only username
+//just approve the alphabet only for username
 bool isWordName(string userName) {
 	if (userName.empty()) {
 		return false;
@@ -325,7 +325,7 @@ bool isNumPhone(string phoneNum) {
 void userMenu() {
 	int userChoice;
 	do {
-		displayHeader("User Menu");
+		displayHeader("USER MENU");
 		promptUserMenu();
 		userChoice = getMenuChoice(1, 6);
 		switch (userChoice)
@@ -350,7 +350,7 @@ void userMenu() {
 			cout << "Exiting User Menu" << endl;
 			break;
 		default:
-			cout << "Please enter 1-6" << endl;
+			cout << "Invalid choice. Please select 1-6." << endl;
 			// case 1-6
 
 		}
@@ -369,25 +369,31 @@ void addUser() {
 
 	// Add userID
 	GymUser newUser;
+	clearInputBuffer();
+
 	cout << "Enter UserID(first Num = 0): ";
 	while (true) {
-		cin >> newUser.userID;
+		getline(cin, newUser.userID);
 
-		if (newUser.userID[0] != '0') {
+		if (newUser.userID.empty()) {
+			cout << "[ERROR] User ID cannot be empty!" << endl;
+			cout << "Please try again: ";
+		}
+		else if (newUser.userID[0] != '0') {
 			cout << "[ERROR] First Number start with (0):" << endl;
 			cout << "Please try Again: ";
 		}
 		else if (!isNumID(newUser.userID)) {
-			cout << "[ERROR] UserID must contain numbers only!" << endl;
+			cout << "[ERROR] User ID must contain numbers only!" << endl;
 			cout << "Please try Again: ";
 		}
 		else if (newUser.userID.length() != 4) {
-			cout << "[ERROR] UserID number should 4 :" << endl;
+			cout << "[ERROR] User ID number should 4 :" << endl;
 			cout << "Please try Again: ";
 
 		}
 		else if (IsValidUserID(newUser.userID)) {
-			cout << "[ERROR] UserID already exist. " << endl;
+			cout << "[ERROR] User ID already exist. " << endl;
 			cout << "Please try Again: ";
 			clearInputBuffer();
 		}
@@ -397,10 +403,15 @@ void addUser() {
 	}
 
 	//Add userName
-	cout << "Enter Username (MAX 4 character): " << endl;
+	cout << "Enter Username (MAX 4 character): ";
 	while (true) {
-		cin >> newUser.userName;
-		if (!isWordName(newUser.userName)) {
+		getline(cin, newUser.userName);
+
+		if (newUser.userName.empty()) {
+			cout << "[ERROR] Username cannot be empty!" << endl;
+			cout << "Please try again: ";
+		}
+		else if (!isWordName(newUser.userName)) {
 			cout << "[ERROR] UserName must type (alphabet) " << endl;
 			cout << "Please try Again: ";
 		}
@@ -414,13 +425,16 @@ void addUser() {
 	};
 
 	//Add PhoneNumber
-	cout << "Enter PhoneNumber(MAX 11 character): " << endl;
+	cout << "Enter PhoneNumber(MAX 11 character): ";
 
 	while (true) {
-		cin >> newUser.phoneNum;
+		getline(cin, newUser.phoneNum);
 
-
-		if (newUser.phoneNum[0] != '0' || newUser.phoneNum[1] != '1') {
+		if (newUser.phoneNum.empty()) {
+			cout << "[ERROR] Phone Number cannot be empty!" << endl;
+			cout << "Please try again: ";
+		}
+		else if (newUser.phoneNum[0] != '0' || newUser.phoneNum[1] != '1') {
 			cout << "[ERROR] Not a phone number format" << endl;
 			cout << "Please try Again: ";
 		}
@@ -486,11 +500,17 @@ void updateUser() {
 			found = true;
 			cout << "\n Found The UserID! \n";
 
+			clearInputBuffer();
 			//Key in Username
 			cout << "Enter New Username: ";
 			while (true) {
-				cin >> username;
-				if (!isWordName(username)) {
+				getline(cin, username);
+
+				if (username.empty()) {
+					cout << "[ERROR] Username cannot be empty!" << endl;
+					cout << "Please try again: ";
+				}
+				else if (!isWordName(username)) {
 					cout << "[ERROR] UserName must type (alphabet) " << endl;
 					cout << "Please try Again: ";
 				}
@@ -505,9 +525,13 @@ void updateUser() {
 			//Key in Phone Number
 			cout << "Enter New Phone Number:";
 			while (true) {
-				cin >> phonenum;
+				getline(cin, phonenum);
 
-				if (phonenum[0] != '0' || phonenum[1] != '1' || !isNumPhone(phonenum) || phonenum.length() > 11 || phonenum.length() < 10) {
+				if (phonenum.empty()) {
+					cout << "[ERROR] Phone Number cannot be empty!" << endl;
+					cout << "Please try again: ";
+				}
+				else if (phonenum[0] != '0' || phonenum[1] != '1' || !isNumPhone(phonenum) || phonenum.length() > 11 || phonenum.length() < 10) {
 					cout << "[ERROR] Not a phone number format" << endl;
 					cout << "Please try Again: ";
 				}
@@ -558,14 +582,14 @@ void deleteUser() {
 
 	string userid;
 	string check;
-	cout << "Enter Existing UserID ";
+	cout << "Enter Existing UserID: ";
 	cin >> userid;
 	cout << "\nPlease Double confirm\n";
-	cout << "Enter 'YES' OR 'NO' : ";
+	cout << "Enter 'YES' OR 'NO' :";
 	cin >> check;
 
 	if (check != "YES") {
-		cout << "Cancel the delete statement";
+		cout << "Cancel the delete statement" << endl;
 		return;
 	}
 
@@ -634,6 +658,7 @@ void displayUser() {
 	}
 
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PACKAGE MODULE
@@ -708,7 +733,33 @@ bool isDuplicateID(string id) {
 	}
 	return false;
 }
-// Add package
+
+// Validation Package ID must input All Numbers
+bool isPackageNumID(string packageID) {
+	if (packageID.empty()) {
+		return false;
+	}
+	for (int i = 0; i < packageID.length(); i++) {
+		if (!isdigit(packageID[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+// Validation Package Name must input All Alphabets
+bool isPackageWordName(string packageName) {
+	if (packageName.empty()) {
+		return false;
+	}
+	for (int i = 0; i < packageName.length(); i++) {
+		if (!isalpha(packageName[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
 void addPackage() {
 	displayHeader("ADD NEW PACKAGE");
 	if (packageCount >= maxPackages) {
@@ -717,11 +768,15 @@ void addPackage() {
 	}
 	GymPackage newPackage;
 
-	// Validation Duplicate ID
+	// Validation Package ID
 	while (true) {
 		cout << "Enter package ID : ";
 		cin >> newPackage.packageID;
-		if (isDuplicateID(newPackage.packageID)) {
+
+		if (!isPackageNumID(newPackage.packageID)) {
+			cout << "[ERROR] Invalid Package ID ! Must input numbers only." << endl;
+		}
+		else if (isDuplicateID(newPackage.packageID)) {
 			cout << "[ERROR] Duplicate Package ID ! Please Enter a unique ID." << endl;
 		}
 		else {
@@ -731,8 +786,19 @@ void addPackage() {
 
 	clearInputBuffer();
 
-	cout << "Enter package name : ";
-	cin >> newPackage.packageName;
+	// Validation Package Name
+	while (true) {
+		cout << "Enter package name : ";
+		getline(cin, newPackage.packageName);
+
+		if (!isPackageWordName(newPackage.packageName)) {
+			cout << "[ERROR] Invalid Package Name ! Must input alphabets only." << endl;
+		}
+		else {
+			break;
+		}
+	}
+
 
 	// Validation price cant be negative
 	do {

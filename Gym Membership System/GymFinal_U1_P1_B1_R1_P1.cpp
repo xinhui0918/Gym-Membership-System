@@ -41,7 +41,7 @@ void modifyBooking();
 void searchBooking();
 void displayBooking();
 void booking();
-void saveBookingToFile();
+void saveBooking();
 void loadBookingFromFile();
 // REPORT MODULE 
 void ReportMenu();
@@ -73,9 +73,8 @@ enum booking_status {
 string  status_to_string(booking_status status) {
 	return (status == BookingActive) ? "Active" : "Inactive";
 }
-
-string statusToString(package_status status) ;
-
+string status_to_string(booking_status status);
+string statusToString(package_status status);
 //Structure declaration
 //GymUser module	
 struct GymUser {
@@ -240,7 +239,7 @@ void MainMenu() {
 // USER MODULE
 bool isDuplicateID(string id);
 void loadUserFromFile() {
-	ifstream inData("GymUser.txt");
+	ifstream inData("UserData.txt");
 
 	if (!inData) {
 		users[0] = { "0001", "Tan", "0193257193", "1001" },
@@ -265,7 +264,7 @@ void loadUserFromFile() {
 };
 
 void saveUserToFile() {
-	ofstream outData("GymUser.txt");
+	ofstream outData("UserData.txt");
 
 	if (!outData) {
 		cout << "[Error] Unable to open User data file" << endl;
@@ -282,12 +281,12 @@ void saveUserToFile() {
 }
 
 void promptUserMenu() {
-	cout << "| 1. Add User                            |" << endl;
-	cout << "| 2. Update User                         |" << endl;
-	cout << "| 3. Delete User                         |" << endl;
-	cout << "| 4. Search Users                        |" << endl;
-	cout << "| 5. Display Users                       |" << endl;
-	cout << "| 6. Exit                                |" << endl;
+	cout << " 1. Add User                            " << endl;
+	cout << " 2. Update User                         " << endl;
+	cout << " 3. Delete User                         " << endl;
+	cout << " 4. Search Users                        " << endl;
+	cout << " 5. Display Users                       " << endl;
+	cout << " 6. Exit                                " << endl;
 }
 
 //user valid ID exist
@@ -586,14 +585,16 @@ void deleteUser() {
 
 	string userid;
 	string check;
-	cout << "Enter Existing UserID ";
+
+	cout << "Enter Existing UserID : ";
 	cin >> userid;
+
 	cout << "\nPlease Double confirm\n";
 	cout << "Enter 'YES' OR 'NO' : ";
 	cin >> check;
 
 	if (check != "YES") {
-		cout << "Cancel the delete statement";
+		cout << "Cancel the delete statement" << endl;
 		return;
 	}
 
@@ -630,7 +631,7 @@ void searchUser() {
 	bool found = false;
 	for (int i = 0; i < userCount; i++) {
 		if (users[i].userID == userid) {
-			cout << "[SUCCESS] Found UserID!" << endl;
+			cout << "[SUCCESS] Found UserID!" << endl << endl;
 			cout << "UserID: " << users[i].userID << endl;
 			cout << "Username: " << users[i].userName << endl;
 			cout << "Phone Number: " << users[i].phoneNum << endl;
@@ -727,8 +728,8 @@ void savePackageToFile() {
 
 	outData.close();
 }
-// Validation Duplicate ID
-bool isDuplicateID (string id) {
+// Validation ID
+bool isDuplicateID(string id) {
 	for (int i = 0; i < packageCount; i++) {
 		if (packages[i].packageID == id) {
 			return true;
@@ -738,7 +739,7 @@ bool isDuplicateID (string id) {
 }
 
 // Validation Package ID must input All Numbers
-bool isNumID (string packageID) {
+bool isPackageNumID(string packageID) {
 	if (packageID.empty()) {
 		return false;
 	}
@@ -751,7 +752,7 @@ bool isNumID (string packageID) {
 }
 
 // Validation Package Name must input All Alphabets
-bool isWordName (string packageName) {
+bool isPackageWordName(string packageName) {
 	if (packageName.empty()) {
 		return false;
 	}
@@ -763,7 +764,6 @@ bool isWordName (string packageName) {
 	return true;
 }
 
-// Add package
 void addPackage() {
 	displayHeader("ADD NEW PACKAGE");
 	if (packageCount >= maxPackages) {
@@ -777,7 +777,7 @@ void addPackage() {
 		cout << "Enter package ID : ";
 		cin >> newPackage.packageID;
 
-		if (!isNumID(newPackage.packageID)) {
+		if (!isPackageNumID(newPackage.packageID)) {
 			cout << "[ERROR] Invalid Package ID ! Must input numbers only." << endl;
 		}
 		else if (isDuplicateID(newPackage.packageID)) {
@@ -793,9 +793,9 @@ void addPackage() {
 	// Validation Package Name
 	while (true) {
 		cout << "Enter package name : ";
-		getline (cin, newPackage.packageName);
+		getline(cin, newPackage.packageName);
 
-		if (!isWordName(newPackage.packageName)) {
+		if (!isPackageWordName(newPackage.packageName)) {
 			cout << "[ERROR] Invalid Package Name ! Must input alphabets only." << endl;
 		}
 		else {
@@ -897,7 +897,7 @@ void updatePackage() {
 			return;
 		}
 	}
-	cout << "[ERROR] Package ID" << id << "Not Found." << endl;
+	cout << "[ERROR] Package ID: " << id << "Not Found." << endl;
 }
 // Delete Package
 void deletePackage() {
@@ -905,7 +905,12 @@ void deletePackage() {
 	string id;
 	cout << "Enter Package ID to Delete : ";
 	cin >> id;
-
+	for (int i = 0; i < userCount; i++) { 
+		if (users[i].userPackage == id) {
+			cout << "[ERROR] Package is currently assigned to a user.\n"; // <---------------------------------------
+			return;
+		}
+	}
 	for (int i = 0; i < packageCount; i++) {
 		if (packages[i].packageID == id) {
 			for (int j = i; j < packageCount - 1; j++) {
@@ -1004,7 +1009,7 @@ void package() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // BOOKING MODULE
 
-void saveBookingToFile() {
+void saveBookingFromFile() {
 	ofstream outFile;
 	outFile.open("bookings.txt");
 
@@ -1111,7 +1116,7 @@ void createBooking() {
 	// acess the data 2 global
 	bookings[bookingCount].bookingID = new_booking_id;
 	bookings[bookingCount].userName = userName;
-	bookings[bookingCount].date = timeSlots[slot_ID - 1].startTime + "-" + timeSlots[slot_ID - 1].endTime;
+	bookings[bookingCount].date = timeSlots[slot_ID - 1].startTime + " - " + timeSlots[slot_ID - 1].endTime;
 	bookings[bookingCount].bookingStatus = BookingActive;
 
 	cout << "Your booking is confirmed! The booking ID is " << new_booking_id << "\nYou have booked: "
@@ -1120,7 +1125,7 @@ void createBooking() {
 	new_booking_id++;
 	bookingCount++;
 
-	saveBookingToFile();
+	saveBookingFromFile();
 }
 // cancel booking
 void cancelBooking() {
@@ -1174,7 +1179,7 @@ void cancelBooking() {
 	else {
 		cout << "Cancellation aborted." << endl;
 	}
-	saveBookingToFile();
+	saveBookingFromFile();
 }
 // modify booking
 void modifyBooking() {
@@ -1235,7 +1240,7 @@ void modifyBooking() {
 	bookings[index].date = timeSlots[newSlot - 1].startTime + "-" + timeSlots[newSlot - 1].endTime;
 
 	cout << "Booking modified successfully. New time slot: " << bookings[index].date << endl;
-	saveBookingToFile();
+	saveBookingFromFile();
 }
 //search booking
 void searchBooking() {
@@ -1328,7 +1333,7 @@ void ReportMenu() {
 		cout << "2. Revenue Report" << endl;
 		cout << "3. Statistics Report" << endl;
 		cout << "4. Exit" << endl;
-		cout << "Enter your choice (1-5): ";
+		cout << "Enter your choice (1-4): ";
 		cin >> choice;
 		if (cin.fail()) {
 			cin.clear();
@@ -1355,8 +1360,8 @@ void ReportMenu() {
 }
 void ReportUser() {
 	system("cls");
-	ifstream userFile("GymUser.txt");
-	ifstream packageFile("PackageData.txt"); 
+	ifstream userFile("UserData.txt");
+	ifstream packageFile("PackageData.txt");
 	if (!userFile || !packageFile) {
 		cout << '\a' << "||Error opening files!||" << endl;
 		exit(1);
@@ -1446,8 +1451,8 @@ void ReportSorting(GymUser users[], GymPackage packages[], int userCount, int pa
 }
 void ReportRevenue() {
 	system("cls");
-	ifstream userFile("GymUser.txt");
-	ifstream packageFile("PackageData.txt"); 
+	ifstream userFile("UserData.txt");
+	ifstream packageFile("PackageData.txt");
 	if (!userFile || !packageFile) {
 		cout << '\a' << "||Error opening files!||" << endl;
 		exit(1);
@@ -1511,8 +1516,8 @@ void ReportRevenue() {
 }
 void ReportStatistics() {
 	system("cls");
-	ifstream userFile("GymUser.txt"); //DO NOT CHANGE THE NAME
-	ifstream packageFile("PackageData.txt");
+	ifstream userFile("UserData.txt"); // CHANGE ACCORDING THE FILE NAME 
+	ifstream packageFile("PackageData.txt"); // CHANGE ACCORDING THE FILE NAME
 	if (!userFile || !packageFile) {
 		cout << '\a' << "||Error opening files!||" << endl;
 		exit(1);
