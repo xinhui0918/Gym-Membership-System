@@ -35,6 +35,7 @@ void package();
 void loadPackageFromFile();
 void savePackageToFile();
 // BOOKING MODULE
+void bookingMenu();
 void createBooking();
 void cancelBooking();
 void modifyBooking();
