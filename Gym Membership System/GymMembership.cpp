@@ -935,7 +935,7 @@ void package() {
 	loadPackageFromFile();
 	int packageChoice = 0;
 	do {
-		displayHeader("GYM MEMBERSHIP SYSTEM");
+		displayHeader("PACKAGE MANAGEMENT MENU");
 		cout << "--------------------------- Package Menu ----------------------------\n";
 		packageMenu();
 		packageChoice = getMenuChoice(1, 6);
@@ -958,7 +958,7 @@ void package() {
 			displayAllPackages();
 			break;
 		case 6:
-			cout << "\nExiting the menu. ThankYou !\n";
+			cout << "\nExiting the package menu. ThankYou !\n";
 			return;
 			break;
 		default:
@@ -1383,13 +1383,14 @@ void ReportMenu() {
 			cout << '\a' << "||Invalid choice. Please select between 1 and 5.||" << endl;
 		}
 	} while (choice != 6);
+	system("cls");
 }
 void ReportUser(GymUser users[], GymPackage packages[], int userCount, int packageCount) {
 	system("cls");
 	ReportPrintuser(users, packages, userCount, packageCount);
 	cout << "\nPress any key to return to the report menu" << endl;
-	system("cls");
 	system("pause");
+	system("cls");
 }
 void ReportSorting(GymUser users[], GymPackage packages[], int userCount, int packageCount) {
 	system("cls");
