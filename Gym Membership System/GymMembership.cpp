@@ -856,6 +856,12 @@ void deletePackage() {
 	string id;
 	cout << "Enter Package ID to Delete : ";
 	cin >> id;
+	for (int i = 0; i < userCount; i++) {
+		if (users[i].userPackage == id) {
+			cout << "[ERROR] Package is currently assigned to a user.\n";
+			return;
+		}
+	}
 
 	for (int i = 0; i < packageCount; i++) {
 		if (packages[i].packageID == id) {
