@@ -275,12 +275,12 @@ void saveUserToFile() {
 }
 
 void promptUserMenu() {
-	cout << "| 1. Add User                            |" << endl;
-	cout << "| 2. Update User                         |" << endl;
-	cout << "| 3. Delete User                         |" << endl;
-	cout << "| 4. Search Users                        |" << endl;
-	cout << "| 5. Display Users                       |" << endl;
-	cout << "| 6. Exit                                |" << endl;
+	cout << " 1. Add User                            " << endl;
+	cout << " 2. Update User                         " << endl;
+	cout << " 3. Delete User                         " << endl;
+	cout << " 4. Search Users                        " << endl;
+	cout << " 5. Display Users                       " << endl;
+	cout << " 6. Exit                                " << endl;
 }
 
 //user valid ID exist
