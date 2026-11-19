@@ -26,7 +26,7 @@ def LOAD_SHOW():
         return exist_show
 
 
-def Register():
+def REGISTER():
     while True:
         print("1. cumtomer")
         print("2. admin")
